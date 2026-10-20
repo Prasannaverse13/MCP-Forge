@@ -1,0 +1,1737 @@
+<title>MCP Forge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* MCP Forge. Apple Pro product page language.
+   Layout: black hero and pinned scroll story, then light bento and a quiet close.
+   The app is a macOS style window: glass sidebar, composer, timeline, output. */
+@property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+:root {
+  --black: #000000;
+  --page: #ffffff;
+  --panel: #f5f5f7;
+  --card: #ffffff;
+  --ink: #1d1d1f;
+  --ink-2: #6e6e73;
+  --ink-3: #86868b;
+  --line: #d2d2d7;
+  --hair: rgba(0, 0, 0, 0.08);
+  --blue: #0071e3;
+  --blue-hi: #0077ed;
+  --link: #0066cc;
+  --field: #ffffff;
+  --glass: rgba(246, 246, 248, 0.72);
+  --ok: #248a3d;
+  --ok-bg: rgba(52, 199, 89, 0.14);
+  --warn: #c93400;
+  --warn-bg: rgba(255, 149, 0, 0.16);
+  --bad: #d70015;
+  --bad-bg: rgba(255, 59, 48, 0.12);
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
+  /* fixed surfaces: these look the same in both themes */
+  --on-black: #f5f5f7;
+  --on-black-2: #a1a1a6;
+  --link-dark: #2997ff;
+  --heat: #ff6a1a;
+  --amber: #ffb340;
+  --code-bg: #1e1e21;
+  --code-ink: #dfdfe3;
+  --x-kw: #fc5fa3; --x-str: #fc6a5d; --x-num: #d0bf69; --x-com: #7f8c98; --x-dec: #ffa14f; --x-gut: #5c5c63;
+  --display: "SF Pro Display", "Inter Tight", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --text: "SF Pro Text", "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --gl: max(22px, env(safe-area-inset-left, 0px));
+  --gr: max(22px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #000000; --panel: #161617; --card: #1c1c1e; --ink: #f5f5f7; --ink-2: #a1a1a6; --ink-3: #8d8d93;
+    --line: #424245; --hair: rgba(255, 255, 255, 0.1); --blue: #0a84ff; --blue-hi: #3395ff; --link: #2997ff; --field: #2c2c2e;
+    --glass: rgba(30, 30, 32, 0.72); --ok: #30d158; --ok-bg: rgba(48, 209, 88, 0.16); --warn: #ff9f0a; --warn-bg: rgba(255, 159, 10, 0.16);
+    --bad: #ff453a; --bad-bg: rgba(255, 69, 58, 0.16); --shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #000000; --panel: #161617; --card: #1c1c1e; --ink: #f5f5f7; --ink-2: #a1a1a6; --ink-3: #8d8d93;
+  --line: #424245; --hair: rgba(255, 255, 255, 0.1); --blue: #0a84ff; --blue-hi: #3395ff; --link: #2997ff; --field: #2c2c2e;
+  --glass: rgba(30, 30, 32, 0.72); --ok: #30d158; --ok-bg: rgba(48, 209, 88, 0.16); --warn: #ff9f0a; --warn-bg: rgba(255, 159, 10, 0.16);
+  --bad: #ff453a; --bad-bg: rgba(255, 69, 58, 0.16); --shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 400 17px/1.47 var(--text); letter-spacing: -0.022em;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, h4 { margin: 0; font-family: var(--display); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--blue) 55%, transparent); outline-offset: 2px; border-radius: 8px; }
+.wrap { max-width: 1080px; margin-inline: auto; padding-left: var(--gl); padding-right: var(--gr); }
+
+/* Buttons */
+.pill-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--blue); color: #fff; border: 0; border-radius: 980px;
+  font: 500 17px/1 var(--text); letter-spacing: -0.02em; padding: 13px 24px; cursor: pointer;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.pill-btn:hover { background: var(--blue-hi); }
+.pill-btn:active { transform: scale(0.97); }
+.pill-btn.sm { font-size: 13px; padding: 7px 14px; }
+.pill-btn[disabled] { opacity: 0.5; cursor: default; }
+.text-link { color: var(--link); font-weight: 400; }
+.text-link:hover { text-decoration: underline; }
+.dark .text-link { color: var(--link-dark); }
+.chev { display: inline-block; width: 7px; height: 7px; border-right: 1.6px solid currentColor; border-top: 1.6px solid currentColor; transform: rotate(45deg); margin-left: 4px; vertical-align: 2px; }
+
+/* The ingot: the MCP chip, hot when forged, steel when cooled */
+.ingot {
+  --s: 280px; --h: 1;
+  width: var(--s); aspect-ratio: 1; border-radius: 23%; position: relative; isolation: isolate;
+  background:
+    radial-gradient(120% 80% at 28% 12%, rgba(255, 255, 255, 0.22), transparent 55%),
+    linear-gradient(150deg, #43464e 0%, #1b1c20 52%, #0b0c0e 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -3px 8px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.06), 0 50px 90px -30px rgba(0, 0, 0, 0.9);
+  display: grid; place-items: center;
+}
+.ingot::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 0; opacity: var(--h);
+  background:
+    radial-gradient(55% 55% at 50% 52%, #fff6d6 0%, #ffc46b 22%, #ff7a1f 52%, rgba(214, 64, 0, 0.9) 78%, #8a2500 100%);
+}
+.ingot::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; z-index: 2;
+  background: conic-gradient(from var(--a), transparent 0deg, rgba(255, 255, 255, 0.75) 40deg, transparent 90deg, transparent 200deg, rgba(160, 200, 255, 0.5) 240deg, transparent 290deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: calc(0.9 - var(--h)); animation: rim 7s linear infinite;
+}
+@keyframes rim { to { --a: 360deg; } }
+.ingot .glyph { position: relative; z-index: 1; display: grid; justify-items: center; gap: calc(var(--s) * 0.04); }
+.ingot svg { width: calc(var(--s) * 0.34); height: auto; overflow: visible; }
+.ingot svg path { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke: rgba(255, 255, 255, calc(0.18 + var(--h) * 0.7)); filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.7)) drop-shadow(0 1px 0 rgba(255, 255, 255, 0.12)); }
+.ingot .mark { font: 700 calc(var(--s) * 0.09) / 1 var(--display); letter-spacing: 0.08em; color: rgba(255, 255, 255, calc(0.16 + var(--h) * 0.75)); text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.1); }
+.ingot.tiny { --s: 22px; --h: 0; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 0 0.5px rgba(0, 0, 0, 0.3); }
+.ingot.tiny::after, .ingot.tiny .mark { display: none; }
+.ingot.tiny svg path { stroke-width: 8; stroke: rgba(255, 255, 255, 0.85); filter: none; }
+.ingot.mid { --s: 76px; --h: 0; }
+.ingot.mid .mark { display: none; }
+.ingot.mid svg path { stroke-width: 5; stroke: rgba(255, 255, 255, 0.55); }
+
+/* ================= LANDING ================= */
+.dark { background: var(--black); color: var(--on-black); }
+.gnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 30; height: 52px;
+  background: rgba(0, 0, 0, 0.64); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08); color: var(--on-black);
+  padding-top: env(safe-area-inset-top, 0px); box-sizing: content-box;
+}
+.gnav .wrap { height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; font: 600 17px/1 var(--display); letter-spacing: -0.02em; white-space: nowrap; }
+.gnav .mid { display: flex; gap: 28px; font-size: 13px; color: var(--on-black-2); }
+.gnav .mid a:hover, .gnav .end a.plain:hover { color: var(--on-black); }
+.gnav .end { display: flex; align-items: center; gap: 18px; font-size: 13px; color: var(--on-black-2); }
+
+.hero { min-height: max(720px, 100svh); padding: calc(110px + env(safe-area-inset-top, 0px)) 0 72px; display: grid; align-content: start; justify-items: center; text-align: center; position: relative; overflow: hidden; }
+.hero .name { font: 600 21px/1 var(--display); letter-spacing: -0.01em; color: var(--on-black-2); }
+.hero h1 { font-size: clamp(56px, 10.5vw, 128px); letter-spacing: -0.045em; line-height: 0.96; margin-top: 18px; }
+.hero h1 span { display: block; }
+.hero h1 .cool { background: linear-gradient(180deg, #ffffff 0%, #a9adb6 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .sub { max-width: 34ch; margin: 24px auto 0; font-size: clamp(19px, 2vw, 24px); line-height: 1.33; letter-spacing: -0.015em; color: var(--on-black-2); }
+.hero .ctas { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 28px; margin-top: 34px; font-size: 19px; }
+.stage { position: relative; margin-top: 64px; display: grid; place-items: center; perspective: 1100px; }
+.stage .glow { position: absolute; width: 760px; height: 520px; max-width: 160vw; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 110, 30, 0.55), rgba(255, 70, 0, 0.15) 55%, transparent); filter: blur(30px); opacity: var(--h, 1); pointer-events: none; }
+.stage .floor { position: absolute; bottom: -70px; width: 420px; height: 60px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.12), transparent); filter: blur(6px); }
+.stage canvas { position: absolute; inset: -260px -360px; width: calc(100% + 720px); height: calc(100% + 520px); pointer-events: none; }
+#heroIngot { transition: transform 0.6s var(--ease); will-change: transform; }
+
+/* Page load sequence (one orchestrated moment) */
+.intro .name, .intro h1 span, .intro .sub, .intro .ctas { animation: rise 1.1s var(--ease) both; }
+.intro h1 span:nth-child(1) { animation-delay: 0.1s; }
+.intro h1 span:nth-child(2) { animation-delay: 0.22s; }
+.intro .sub { animation-delay: 0.38s; }
+.intro .ctas { animation-delay: 0.5s; }
+.intro .stage { animation: emerge 1.6s var(--ease) 0.15s both; }
+@keyframes rise { from { opacity: 0; transform: translateY(28px); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes emerge { from { opacity: 0; transform: translateY(60px) scale(0.9); } to { opacity: 1; transform: none; } }
+
+/* Pinned scroll story */
+.story { position: relative; height: 420vh; }
+.story .pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; align-items: center; overflow: hidden; }
+.story .pin > .wrap { width: 100%; }
+.story .grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+.story .copy { position: relative; min-height: 240px; }
+.story .say { position: absolute; inset: 0 0 auto 0; transition: opacity 0.5s var(--ease), transform 0.6s var(--ease); opacity: 0; transform: translateY(18px); }
+.story .say.on { opacity: 1; transform: none; }
+.story .say h2 { font-size: clamp(40px, 5.4vw, 64px); letter-spacing: -0.04em; }
+.story .say p { margin-top: 18px; font-size: 21px; line-height: 1.38; color: var(--on-black-2); max-width: 30ch; }
+.rail { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 300px; max-width: 360px; }
+.rail div { display: grid; gap: 8px; font: 500 12px/1 var(--text); color: var(--on-black-2); letter-spacing: 0; }
+.rail i { display: block; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
+.rail i b { display: block; height: 100%; width: 0; background: var(--on-black); border-radius: inherit; }
+.rail div.on { color: var(--on-black); }
+
+.win {
+  border-radius: 18px; background: #161618; border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 40px 120px -20px rgba(0, 0, 0, 0.9), 0 0 0 0.5px rgba(255, 255, 255, 0.04) inset; overflow: hidden;
+}
+.win .bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); background: #1c1c1f; }
+.win .bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a3e; }
+.win .bar span { margin-left: 10px; font: 500 12px/1 var(--text); color: #8e8e93; letter-spacing: 0; }
+.win .body { position: relative; height: 420px; }
+.scene { position: absolute; inset: 0; padding: 26px 28px; opacity: 0; transform: scale(0.985); transition: opacity 0.5s var(--ease), transform 0.6s var(--ease); }
+.scene.on { opacity: 1; transform: none; }
+.doc h4 { font: 600 22px/1.2 var(--display); color: #f5f5f7; letter-spacing: -0.02em; }
+.doc .bars { display: grid; gap: 11px; margin-top: 18px; position: relative; }
+.doc .bars span { display: block; height: 9px; border-radius: 5px; background: #2c2c30; }
+.doc .ep { font: 500 13px/1 var(--mono); color: #8e8e93; padding: 9px 10px; border-radius: 8px; background: #202024; letter-spacing: 0; transition: color 0.3s, background-color 0.3s, box-shadow 0.3s; }
+.doc .ep.lit { color: #fff; background: rgba(41, 151, 255, 0.18); box-shadow: inset 0 0 0 1px rgba(41, 151, 255, 0.5); }
+.doc .beam { position: absolute; left: -28px; right: -28px; height: 70px; background: linear-gradient(180deg, transparent, rgba(41, 151, 255, 0.16), transparent); border-top: 1px solid rgba(41, 151, 255, 0.4); pointer-events: none; }
+.doc .found { position: absolute; left: 28px; bottom: 22px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tag { font: 500 12px/1 var(--text); letter-spacing: 0; padding: 7px 10px; border-radius: 980px; background: rgba(255, 255, 255, 0.08); color: #d1d1d6; }
+.code-scene pre { margin: 0; font: 400 13.5px/1.75 var(--mono); color: var(--code-ink); letter-spacing: 0; white-space: pre; overflow: hidden; }
+.caret { display: inline-block; width: 8px; height: 17px; background: #2997ff; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.tests-scene .head { display: flex; justify-content: space-between; align-items: center; font: 600 15px/1 var(--text); color: #f5f5f7; letter-spacing: -0.01em; }
+.tests-scene ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 4px; }
+.tests-scene li { display: grid; grid-template-columns: 22px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; font: 400 14px/1.3 var(--text); color: #d1d1d6; letter-spacing: -0.01em; opacity: 0; transform: translateY(6px); transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), background-color 0.35s; }
+.tests-scene li.in { opacity: 1; transform: none; }
+.tests-scene li.bad { background: rgba(255, 69, 58, 0.1); }
+.tests-scene li.fixed { background: rgba(48, 209, 88, 0.08); }
+.tests-scene .dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #30d158; transition: background-color 0.35s; }
+.tests-scene li.bad .dot { background: #ff453a; }
+.tests-scene .dot svg { width: 10px; height: 10px; }
+.tests-scene small { font: 500 12px/1 var(--text); color: #ff9f0a; letter-spacing: 0; }
+.ship-scene { display: grid; place-items: center; text-align: center; gap: 18px; align-content: center; }
+.live { display: inline-flex; align-items: center; gap: 8px; font: 600 15px/1 var(--text); color: #30d158; letter-spacing: -0.01em; }
+.live i { width: 9px; height: 9px; border-radius: 50%; background: #30d158; box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.6); animation: ping 1.8s var(--ease) infinite; }
+@keyframes ping { 70% { box-shadow: 0 0 0 10px rgba(48, 209, 88, 0); } 100% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0); } }
+.ship-scene .url { font: 500 15px/1.4 var(--mono); color: #f5f5f7; padding: 12px 16px; border-radius: 12px; background: #202024; letter-spacing: 0; max-width: 100%; overflow-wrap: anywhere; }
+.ship-scene .meta { font-size: 14px; color: #8e8e93; letter-spacing: -0.01em; }
+
+/* Static fallback for reduced motion */
+.story.static { height: auto; padding-block: 120px; }
+.story.static .pin { position: static; height: auto; }
+.story.static .grid { grid-template-columns: 1fr; }
+.story.static .copy, .story.static .rail { display: none; }
+.story.static .win .body { height: auto; display: grid; }
+.story.static .scene { position: relative; opacity: 1; transform: none; border-top: 1px solid rgba(255, 255, 255, 0.07); min-height: 300px; }
+.story .static-head { display: none; }
+.story.static .static-head { display: block; margin-bottom: 40px; }
+
+/* Bento */
+.bento-sec { background: var(--panel); padding-block: 130px; }
+.sec-head { text-align: center; max-width: 760px; margin: 0 auto 64px; }
+.sec-head h2 { font-size: clamp(40px, 6vw, 72px); letter-spacing: -0.045em; }
+.sec-head p { margin-top: 18px; font-size: 21px; line-height: 1.38; color: var(--ink-2); }
+.bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.tile { background: var(--card); border-radius: 28px; padding: 34px; display: grid; gap: 22px; align-content: space-between; overflow: hidden; min-height: 360px; position: relative; }
+.tile.wide { grid-column: span 2; }
+.tile h3 { font-size: 30px; letter-spacing: -0.03em; line-height: 1.1; }
+.tile p { color: var(--ink-2); font-size: 17px; margin-top: 10px; max-width: 34ch; }
+.tile .who { font: 600 14px/1 var(--text); color: var(--ink-3); letter-spacing: -0.01em; }
+.v-code { background: var(--code-bg); border-radius: 16px; padding: 18px 20px; font: 400 13px/1.7 var(--mono); color: var(--code-ink); letter-spacing: 0; overflow: hidden; white-space: pre; }
+.v-diff { display: grid; gap: 4px; font: 400 13px/1.6 var(--mono); letter-spacing: 0; }
+.v-diff span { padding: 4px 10px; border-radius: 6px; white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.v-diff .m { background: var(--bad-bg); color: var(--bad); }
+.v-diff .p { background: var(--ok-bg); color: var(--ok); }
+.v-dots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.v-dots i { aspect-ratio: 1; border-radius: 50%; background: var(--line); transition: background-color 0.5s var(--ease), transform 0.5s var(--spring); }
+.v-dots.go i { background: #34c759; transform: scale(1.04); }
+.v-dots.go i:nth-child(3), .v-dots.go i:nth-child(5) { animation: redgreen 1.6s var(--ease) both; }
+@keyframes redgreen { 0%, 45% { background: #ff3b30; } 100% { background: #34c759; } }
+.v-dots i:nth-child(1) { transition-delay: 0.05s; } .v-dots i:nth-child(2) { transition-delay: 0.12s; } .v-dots i:nth-child(3) { transition-delay: 0.19s; }
+.v-dots i:nth-child(4) { transition-delay: 0.26s; } .v-dots i:nth-child(5) { transition-delay: 0.33s; } .v-dots i:nth-child(6) { transition-delay: 0.4s; }
+.v-search { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 14px; background: var(--panel); color: var(--ink-2); font-size: 15px; }
+.v-search svg { width: 16px; height: 16px; flex: none; }
+.v-url { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 14px; background: var(--panel); font: 500 14px/1.3 var(--mono); letter-spacing: 0; overflow-wrap: anywhere; }
+.v-url i { width: 8px; height: 8px; border-radius: 50%; background: #34c759; flex: none; }
+
+.close-sec { padding-block: 150px 120px; text-align: center; background: var(--page); }
+.close-sec h2 { font-size: clamp(44px, 7vw, 88px); letter-spacing: -0.05em; margin-top: 32px; }
+.close-sec p { margin: 20px auto 0; font-size: 21px; color: var(--ink-2); max-width: 32ch; }
+.close-sec .pill-btn { margin-top: 36px; }
+.close-sec .ingot { margin-inline: auto; }
+.foot { border-top: 1px solid var(--line); padding-block: 22px 40px; font-size: 12px; color: var(--ink-3); letter-spacing: -0.01em; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.foot a:hover { text-decoration: underline; }
+/* ================= SIGN IN AND SIGN UP ================= */
+@property --h { syntax: "<number>"; inherits: true; initial-value: 1; }
+.auth { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 56px var(--gr) 56px var(--gl); background: var(--page); }
+.auth-box { width: min(380px, 100%); display: grid; justify-items: center; text-align: center; }
+.auth-box h1 { font-size: 34px; letter-spacing: -0.035em; margin-top: 28px; }
+.auth-box > p#auth-sub { margin-top: 10px; color: var(--ink-2); min-height: 1.47em; }
+.auth-seg { margin-top: 26px; width: 100%; }
+.auth-seg button { padding: 9px 12px; font-size: 14px; }
+.fgroup { width: 100%; margin-top: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--field); overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; }
+.fgroup:focus-within { border-color: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 22%, transparent); }
+.ff { position: relative; animation: ffIn 0.4s var(--ease) both; }
+.ff + .ff { border-top: 1px solid var(--line); }
+@keyframes ffIn { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 60px; } }
+.ff input { width: 100%; height: 56px; border: 0; background: transparent; color: var(--ink); font: 400 17px/1 var(--text); letter-spacing: -0.02em; padding: 22px 16px 6px; }
+.ff input:focus { outline: none; }
+.ff label { position: absolute; left: 17px; top: 18px; font-size: 17px; color: var(--ink-3); pointer-events: none; transform-origin: left top; transition: transform 0.2s var(--ease); }
+.ff input:focus + label, .ff input:not(:placeholder-shown) + label { transform: translateY(-10px) scale(0.72); }
+.ff .eye { position: absolute; right: 10px; top: 14px; border: 0; background: none; color: var(--link); font: 500 13px/1 var(--text); padding: 8px 6px; cursor: pointer; }
+.ff:has(.eye) input { padding-right: 64px; }
+.auth-go { width: 100%; height: 50px; margin-top: 18px; position: relative; }
+.auth-go.busy span { opacity: 0; }
+.auth-go.busy::after { content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; border-right-color: transparent; animation: spin 0.7s linear infinite; }
+.shake { animation: shake 0.4s var(--ease); }
+@keyframes shake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
+.auth-hint { margin-top: 10px; font-size: 13px; color: var(--ink-2); align-self: start; justify-self: start; padding-left: 4px; }
+.auth-err { color: var(--bad); font-size: 14px; margin-top: 12px; }
+.auth-note { margin-top: 22px; font-size: 13px; color: var(--ink-3); max-width: 36ch; line-height: 1.45; }
+.auth-back { margin-top: 26px; font-size: 14px; }
+
+/* ================= ONBOARDING ================= */
+.setup { min-height: 100vh; min-height: 100svh; background: var(--page); display: grid; grid-template-rows: auto 1fr auto; padding: calc(20px + env(safe-area-inset-top, 0px)) var(--gr) 32px var(--gl); }
+.setup-top { display: flex; justify-content: space-between; align-items: center; max-width: 1080px; width: 100%; margin-inline: auto; }
+.dots { display: flex; gap: 8px; }
+.dots i { width: 7px; height: 7px; border-radius: 4px; background: var(--line); transition: width 0.4s var(--spring), background-color 0.3s; }
+.dots i.on { width: 22px; background: var(--ink); }
+.setup-body { position: relative; width: min(560px, 100%); margin: 0 auto; display: grid; align-items: center; overflow: hidden; padding-block: 24px; }
+.st { grid-area: 1 / 1; display: grid; justify-items: center; text-align: center; transition: opacity 0.45s var(--ease), transform 0.55s var(--ease); }
+.st.out-l { opacity: 0; transform: translateX(-60px); pointer-events: none; }
+.st.out-r { opacity: 0; transform: translateX(60px); pointer-events: none; }
+.st .sym { width: 76px; height: 76px; border-radius: 20px; display: grid; place-items: center; color: #fff; box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.35); }
+.st .sym svg { width: 38px; height: 38px; }
+.st h1 { font-size: clamp(32px, 4.4vw, 44px); letter-spacing: -0.04em; margin-top: 26px; }
+.st > p { margin-top: 12px; color: var(--ink-2); max-width: 40ch; }
+.group { width: 100%; margin-top: 30px; background: var(--panel); border-radius: 14px; overflow: hidden; text-align: left; }
+.ghead { width: 100%; margin-top: 28px; text-align: left; font-size: 13px; color: var(--ink-2); padding-left: 16px; letter-spacing: -0.01em; }
+.ghead + .group { margin-top: 8px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 50px; padding: 0 16px; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--hair); }
+.row label, .row .lbl { font-size: 17px; color: var(--ink); white-space: nowrap; }
+.row input, .row select { border: 0; background: transparent; color: var(--ink); font: 400 17px/1 var(--text); letter-spacing: -0.02em; text-align: right; min-width: 0; flex: 1; padding: 14px 0; }
+.row input::placeholder { color: var(--ink-3); }
+.row input:focus, .row select:focus { outline: none; }
+.row select { appearance: none; cursor: pointer; color: var(--ink-2); padding-right: 18px; background: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%) right 6px center / 6px 6px no-repeat, linear-gradient(135deg, var(--ink-3) 50%, transparent 50%) right 1px center / 6px 6px no-repeat; }
+button.row { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; font-size: 17px; }
+button.row:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+button.row[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
+button.row[aria-disabled="true"]:hover { background: transparent; }
+button.row .tick { width: 18px; height: 18px; flex: none; color: var(--blue); opacity: 0; transform: scale(0.6); transition: opacity 0.2s, transform 0.3s var(--spring); }
+button.row[aria-checked="true"] .tick { opacity: 1; transform: none; }
+button.row small { display: block; font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+button.row > span:first-child { padding-block: 12px; }
+.seg { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: color-mix(in srgb, var(--ink) 7%, transparent); border-radius: 9px; padding: 2px; isolation: isolate; }
+.seg button { position: relative; z-index: 1; border: 0; background: none; font: 500 13px/1 var(--text); letter-spacing: -0.01em; color: var(--ink); padding: 7px 14px; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.seg .thumb { position: absolute; z-index: 0; top: 2px; bottom: 2px; left: 2px; border-radius: 7px; background: var(--card); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.04); transition: transform 0.35s var(--spring), width 0.35s var(--spring); }
+.setup-foot { display: grid; justify-items: center; gap: 14px; }
+.setup-foot .pill-btn { width: min(320px, 100%); }
+.setup-foot .back { background: none; border: 0; color: var(--link); font-size: 15px; cursor: pointer; }
+.setup-foot .back:hover { text-decoration: underline; }
+
+/* ================= DASHBOARD ================= */
+.appwin { display: grid; grid-template-columns: 268px minmax(0, 1fr); min-height: 100vh; min-height: 100svh; background: var(--page); }
+.side {
+  position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-rows: auto auto auto 1fr auto; gap: 14px;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 14px 16px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(30px); backdrop-filter: saturate(180%) blur(30px);
+  border-right: 1px solid var(--hair); z-index: 30;
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; font: 600 17px/1 var(--display); letter-spacing: -0.02em; }
+.side .brand { padding: 4px 8px; font-size: 16px; }
+.newbtn { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-radius: 10px; padding: 10px; background: color-mix(in srgb, var(--blue) 12%, transparent); color: var(--blue); font: 500 14px/1 var(--text); letter-spacing: -0.01em; cursor: pointer; transition: background-color 0.2s, transform 0.2s var(--ease); }
+.newbtn:hover { background: color-mix(in srgb, var(--blue) 18%, transparent); }
+.newbtn:active { transform: scale(0.98); }
+.newbtn svg { width: 14px; height: 14px; }
+.search { display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 9px; background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink-3); }
+.search svg { width: 14px; height: 14px; flex: none; }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: 400 14px/1 var(--text); letter-spacing: -0.01em; padding: 9px 0; }
+.search input:focus { outline: none; }
+.search:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 30%, transparent); }
+.srvwrap { min-height: 0; display: grid; grid-template-rows: auto 1fr; }
+.side h4 { font: 600 12px/1 var(--text); color: var(--ink-3); letter-spacing: -0.005em; padding: 0 10px; margin-bottom: 8px; }
+.srv { display: grid; gap: 2px; overflow: auto; align-content: start; min-height: 0; margin-inline: -4px; padding-inline: 4px; }
+.srv .it { position: relative; display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 8px 8px 10px; border-radius: 8px; font-size: 14px; letter-spacing: -0.01em; cursor: pointer; border: 0; background: none; text-align: left; width: 100%; color: var(--ink); animation: itIn 0.45s var(--ease) both; }
+@keyframes itIn { from { opacity: 0; transform: translateX(-8px); } }
+.srv .it:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.srv .it[aria-current="true"] { background: color-mix(in srgb, var(--blue) 14%, transparent); }
+.srv .it > i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.srv .it > i.ok { background: #34c759; box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.18); } .srv .it > i.warn { background: #ff9f0a; } .srv .it > i.run { background: var(--blue); animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: 0.3; } }
+.srv .it .nm { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srv .it small { display: block; font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srv .del { width: 24px; height: 24px; border-radius: 6px; border: 0; background: none; color: var(--ink-3); display: grid; place-items: center; cursor: pointer; opacity: 0; transition: opacity 0.15s; }
+.srv .it:hover .del, .srv .del:focus-visible { opacity: 1; }
+.srv .del:hover { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+.srv .del svg { width: 12px; height: 12px; }
+.srv .empty-s { font-size: 13px; color: var(--ink-3); padding: 4px 10px; line-height: 1.4; }
+.me { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 600 14px/1 var(--display); color: #fff; background: linear-gradient(160deg, #5e5ce6, #0a84ff); }
+.me b { display: block; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me small { display: block; font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me .acts { grid-column: 1 / -1; display: flex; gap: 16px; font-size: 13px; padding-top: 4px; }
+.me .acts a, .me .acts button { background: none; border: 0; padding: 0; color: var(--link); cursor: pointer; font-size: 13px; }
+.scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.32); z-index: 25; animation: fade 0.3s var(--ease); }
+@keyframes fade { from { opacity: 0; } }
+
+.main { padding: calc(26px + env(safe-area-inset-top, 0px)) max(32px, env(safe-area-inset-right, 0px)) 64px 32px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; align-content: start; min-width: 0; max-width: 1240px; }
+.tb { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; min-height: 40px; }
+.tb .tt { flex: 1; min-width: 0; }
+.tb h1 { font-size: 30px; letter-spacing: -0.035em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crumb { font-size: 14px; color: var(--ink-2); margin-top: 4px; letter-spacing: -0.01em; }
+.crumb:empty { display: none; }
+.tb .r { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.menubtn { display: none; width: 36px; height: 36px; border-radius: 10px; border: 0; background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); cursor: pointer; place-items: center; }
+.menubtn svg { width: 18px; height: 18px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 var(--text); letter-spacing: 0; padding: 6px 10px; border-radius: 980px; background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink-2); white-space: nowrap; }
+.badge i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge.ok { background: var(--ok-bg); color: var(--ok); } .badge.warn { background: var(--warn-bg); color: var(--warn); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); } .badge.run { background: color-mix(in srgb, var(--blue) 12%, transparent); color: var(--blue); }
+.badge.run i { animation: blink 1.2s ease-in-out infinite; }
+.result { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); letter-spacing: -0.01em; }
+.result b { font: 600 15px/1 var(--text); color: var(--ink); }
+.result .ck { width: 20px; height: 20px; }
+.banner { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: var(--warn-bg); color: var(--ink); font-size: 14px; line-height: 1.45; letter-spacing: -0.01em; animation: stepIn 0.45s var(--ease) both; }
+.banner b { font-weight: 600; }
+.banner code { font: 500 12.5px/1 var(--mono); background: color-mix(in srgb, var(--ink) 8%, transparent); padding: 2px 6px; border-radius: 5px; }
+
+.composer { background: var(--card); border-radius: 22px; box-shadow: var(--shadow); border: 1px solid var(--hair); padding: 8px 8px 12px; transition: box-shadow 0.3s var(--ease), border-color 0.3s; }
+.composer:focus-within { border-color: color-mix(in srgb, var(--blue) 40%, var(--hair)); }
+.composer.flash { animation: flash 0.9s var(--ease); }
+@keyframes flash { 30% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 30%, transparent), var(--shadow); } }
+.composer .big { display: flex; align-items: center; gap: 14px; padding: 12px 14px 10px; }
+.composer .big svg { width: 22px; height: 22px; color: var(--ink-3); flex: none; }
+.composer .big input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: 500 26px/1.2 var(--display); letter-spacing: -0.03em; padding: 4px 0; }
+.composer .big input::placeholder { color: var(--ink-3); }
+.composer input:focus { outline: none; }
+.composer .more { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; padding: 0 8px; }
+.composer .sub { background: var(--panel); border-radius: 12px; padding: 9px 12px 10px; display: grid; gap: 3px; }
+.composer .sub label { font: 500 11px/1.2 var(--text); color: var(--ink-3); letter-spacing: 0; }
+.composer .sub input { border: 0; background: transparent; color: var(--ink); font: 400 14px/1.3 var(--text); letter-spacing: -0.01em; padding: 0; min-width: 0; width: 100%; }
+.composer .ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 8px 0; }
+.composer .ctl .spacer { flex: 1; }
+.stopbtn { color: var(--bad); }
+.chipsel { position: relative; display: inline-flex; align-items: center; border-radius: 980px; background: var(--panel); }
+.chipsel select { appearance: none; border: 0; background: transparent; color: var(--ink); font: 500 13px/1 var(--text); letter-spacing: -0.01em; padding: 9px 30px 9px 14px; cursor: pointer; max-width: 100%; }
+.chipsel::after { content: ""; position: absolute; right: 13px; top: 50%; width: 5px; height: 5px; border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.ctl .lab { font-size: 13px; color: var(--ink-2); letter-spacing: -0.01em; }
+
+/* home pane */
+.home-pane { display: grid; gap: 22px; animation: stepIn 0.5s var(--ease) both; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--panel); border-radius: 18px; padding: 6px; }
+.stat { padding: 16px 18px; display: grid; gap: 6px; position: relative; }
+.stat + .stat::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 1px; background: var(--hair); }
+.stat b { font: 600 34px/1 var(--display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--ink-2); letter-spacing: -0.01em; }
+.sect-h { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
+.sect-h h2 { font-size: 22px; letter-spacing: -0.03em; }
+.sect-h p { font-size: 14px; color: var(--ink-2); }
+.tpl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tcard { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: start; text-align: left; padding: 16px; border-radius: 16px; border: 1px solid var(--hair); background: var(--card); color: var(--ink); cursor: pointer; transition: transform 0.35s var(--spring), box-shadow 0.3s var(--ease), border-color 0.3s; animation: stepIn 0.5s var(--ease) both; }
+.tcard:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: transparent; }
+.tcard:active { transform: scale(0.985); }
+.tcard .mono { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #fff; font: 700 17px/1 var(--display); letter-spacing: -0.02em; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+.tcard b { display: block; font-size: 15px; font-weight: 600; letter-spacing: -0.015em; }
+.tcard small { display: block; font-size: 13px; color: var(--ink-2); margin-top: 3px; line-height: 1.35; }
+.tcard em { display: block; font: 500 11px/1 var(--mono); font-style: normal; color: var(--ink-3); margin-top: 8px; letter-spacing: 0; }
+
+/* run pane */
+.run-pane { display: grid; gap: 22px; animation: stepIn 0.45s var(--ease) both; }
+.panel { background: var(--card); border-radius: 20px; border: 1px solid var(--hair); box-shadow: var(--shadow); overflow: hidden; min-width: 0; }
+.forge-head { padding: 20px 22px 18px; display: grid; gap: 20px; }
+.fh-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; align-items: center; }
+.forge-head .ingot.mid { --s: 60px; --h: 0; transition: --h 2.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.forge-head .ingot.mid::before { opacity: var(--h); }
+.forge-head .ingot.mid::after { opacity: calc(0.9 - var(--h)); }
+.forge-head .ingot.mid svg path { stroke: rgba(255, 255, 255, calc(0.45 + var(--h) * 0.5)); }
+.forge-head .ingot.forging { animation: breathe 1.5s ease-in-out infinite alternate; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 calc(30px * var(--h)) rgba(255, 106, 26, calc(0.55 * var(--h))); }
+@keyframes breathe { from { --h: 0.62; } to { --h: 1; } }
+.forge-head .ingot.instant { transition: none; }
+.fh-t h2 { font: 600 21px/1.15 var(--display); letter-spacing: -0.03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fh-t p { font-size: 14px; color: var(--ink-2); margin-top: 4px; letter-spacing: -0.01em; }
+.fh-clock { font: 500 26px/1 var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.stepper { position: relative; }
+.stepper ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; }
+.stepper li { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.stepper .lb { font-size: 12.5px; color: var(--ink-3); letter-spacing: -0.005em; transition: color 0.3s; }
+.stepper .node { width: 22px; height: 22px; border-radius: 50%; background: var(--card); box-shadow: inset 0 0 0 2px var(--line); position: relative; z-index: 1; display: grid; place-items: center; transition: box-shadow 0.3s, background-color 0.3s, transform 0.4s var(--spring); }
+.stepper li[data-s="run"] .node { box-shadow: inset 0 0 0 2px var(--heat); }
+.stepper li[data-s="run"] .node::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--heat); opacity: 0.6; animation: ping 1.4s var(--ease) infinite; }
+@keyframes ping { from { transform: scale(0.7); opacity: 0.7; } to { transform: scale(1.35); opacity: 0; } }
+.stepper li[data-s="run"] .lb, .stepper li[data-s="done"] .lb, .stepper li[data-s="warn"] .lb, .stepper li[data-s="fail"] .lb { color: var(--ink); }
+.stepper li[data-s="done"] .node { background: #34c759; box-shadow: none; transform: scale(1.05); }
+.stepper li[data-s="warn"] .node { background: #ff9f0a; box-shadow: none; }
+.stepper li[data-s="fail"] .node { background: #ff3b30; box-shadow: none; }
+.stepper .node svg { width: 12px; height: 12px; }
+.track { position: absolute; left: 10%; right: 10%; top: 10px; height: 2px; background: var(--hair); border-radius: 2px; overflow: hidden; }
+.track b { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #ff9f0a, var(--heat)); transition: width 0.8s var(--ease), background 0.6s; }
+.track b.ok { background: #34c759; }
+
+.cols { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 22px; align-items: start; }
+.panel-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px 6px; }
+.panel-h h2, .outh h2 { font: 600 17px/1.2 var(--text); letter-spacing: -0.02em; }
+.tl { list-style: none; margin: 0; padding: 6px 18px 14px; }
+.tl li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 12px; padding: 12px 0; position: relative; animation: stepIn 0.45s var(--ease) both; }
+@keyframes stepIn { from { opacity: 0; transform: translateY(8px); } }
+.tl li:not(:last-child)::after { content: ""; position: absolute; left: 12.5px; top: 40px; bottom: -6px; width: 1.5px; background: var(--hair); }
+.tl .ic { width: 26px; height: 26px; display: grid; place-items: center; }
+.tl .ic svg { width: 24px; height: 24px; overflow: visible; }
+.tl .nm { font-size: 15px; font-weight: 500; letter-spacing: -0.015em; }
+.tl .dt { font-size: 13px; color: var(--ink-2); margin-top: 3px; line-height: 1.4; overflow-wrap: anywhere; }
+.tl .tool { display: inline-block; margin-top: 7px; font: 500 11px/1 var(--text); letter-spacing: 0; color: var(--ink-2); background: color-mix(in srgb, var(--ink) 6%, transparent); border-radius: 6px; padding: 5px 7px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl .sec { font: 500 12px/1.3 var(--text); color: var(--ink-3); padding-top: 3px; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.ring-run { animation: spin 0.9s linear infinite; transform-origin: 12px 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: draw 0.5s var(--ease) 0.1s forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.pop { animation: pop 0.45s var(--spring) both; transform-origin: 12px 12px; }
+@keyframes pop { from { transform: scale(0.4); opacity: 0; } }
+.empty { padding: 34px 22px 38px; display: grid; gap: 6px; text-align: center; justify-items: center; color: var(--ink-2); font-size: 14px; }
+.empty b { font-size: 16px; color: var(--ink); font-weight: 600; letter-spacing: -0.015em; }
+
+.outh { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.outh .seg button { padding: 7px 11px; }
+.tp { animation: tpIn 0.35s var(--ease) both; }
+@keyframes tpIn { from { opacity: 0; transform: translateY(6px); } }
+.ghost { border: 0; background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); border-radius: 980px; font: 500 13px/1 var(--text); letter-spacing: -0.01em; padding: 8px 14px; cursor: pointer; transition: background-color 0.2s, transform 0.2s var(--ease); }
+.ghost:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.ghost:active { transform: scale(0.97); }
+.ghost[disabled] { opacity: 0.45; cursor: default; }
+.pfoot { padding: 0 16px 14px; display: flex; justify-content: flex-end; gap: 8px; align-items: center; flex-wrap: wrap; }
+.codewrap { background: var(--code-bg); margin: 0 8px 8px; border-radius: 14px; overflow: hidden; }
+.codehead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; }
+.ftabs { display: flex; gap: 4px; overflow-x: auto; min-width: 0; }
+.ftab { border: 0; background: none; color: #8e8e93; font: 500 12px/1 var(--mono); letter-spacing: 0; padding: 7px 10px; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.ftab[aria-pressed="true"] { background: rgba(255, 255, 255, 0.09); color: #f5f5f7; }
+.codemeta { font: 500 12px/1 var(--text); color: #8e8e93; letter-spacing: 0; white-space: nowrap; }
+.codebox { overflow: auto; max-height: 540px; }
+.codebox pre { margin: 0; padding: 12px 0 16px; font: 400 12.5px/1.7 var(--mono); color: var(--code-ink); letter-spacing: 0; min-width: max-content; }
+.codebox .ln { display: grid; grid-template-columns: 46px 1fr; padding-right: 18px; border-left: 2px solid transparent; }
+.codebox .ln.rv { animation: lnIn 0.32s var(--ease) both; animation-delay: calc(var(--i) * 14ms); }
+@keyframes lnIn { from { opacity: 0; transform: translateX(-6px); } }
+.codebox .ln i { font-style: normal; color: var(--x-gut); text-align: right; padding-right: 16px; user-select: none; }
+.codebox .ln.hl { background: rgba(255, 159, 10, 0.12); border-left-color: #ff9f0a; }
+.k { color: var(--x-kw); } .s { color: var(--x-str); } .n { color: var(--x-num); } .c { color: var(--x-com); } .d { color: var(--x-dec); }
+.codebox .empty, .logs .empty { color: #8e8e93; } .codebox .empty b { color: #f5f5f7; }
+
+.tsum { display: flex; align-items: center; gap: 16px; padding: 4px 18px 12px; }
+.tsum:empty { display: none; }
+.ring { width: 56px; height: 56px; transform: rotate(-90deg); flex: none; }
+.ring circle { fill: none; stroke-width: 6; }
+.ring .bg { stroke: color-mix(in srgb, var(--ink) 8%, transparent); }
+.ring .fg { stroke: #34c759; stroke-linecap: round; transition: stroke-dashoffset 0.9s var(--ease); }
+.ring .fg.part { stroke: #ff9f0a; }
+.tsum b { display: block; font: 600 22px/1.1 var(--display); letter-spacing: -0.03em; }
+.tsum span { font-size: 13px; color: var(--ink-2); }
+.tests { list-style: none; margin: 0; padding: 0 8px 8px; }
+.tests li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 10px; border-radius: 12px; animation: stepIn 0.4s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
+.tests li + li { box-shadow: 0 -1px 0 var(--hair); }
+.tests .nm { font-size: 15px; letter-spacing: -0.015em; }
+.tests .why { font: 400 12px/1.4 var(--mono); color: var(--bad); margin-top: 4px; letter-spacing: 0; overflow-wrap: anywhere; }
+.tests svg { width: 20px; height: 20px; }
+
+.try { padding: 4px 16px 18px; display: grid; gap: 14px; }
+.try-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.try-row .lbl { font-size: 13px; color: var(--ink-2); }
+.try-desc { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+.try-args { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.try-args .sub { background: var(--panel); border-radius: 12px; padding: 9px 12px 10px; display: grid; gap: 3px; }
+.try-args .sub label { font: 500 11px/1.2 var(--text); color: var(--ink-3); letter-spacing: 0; }
+.try-args .sub input, .try-args .sub select { border: 0; background: transparent; color: var(--ink); font: 400 14px/1.3 var(--mono); letter-spacing: 0; padding: 0; min-width: 0; width: 100%; }
+.try-args .sub input:focus { outline: none; }
+.try-out { background: var(--code-bg); border-radius: 14px; overflow: hidden; }
+.try-out .h { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font: 500 12px/1 var(--text); color: #8e8e93; }
+.try-out pre { margin: 0; padding: 14px 16px; font: 400 12.5px/1.6 var(--mono); color: var(--code-ink); letter-spacing: 0; max-height: 360px; overflow: auto; white-space: pre-wrap; word-break: break-word; animation: tpIn 0.35s var(--ease) both; }
+.try .empty { padding: 26px 10px; }
+
+.logs { margin: 0 8px 8px; padding: 14px 16px; border-radius: 14px; background: var(--code-bg); font: 400 12px/1.75 var(--mono); color: var(--code-ink); letter-spacing: 0; max-height: 540px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+.logs .t { color: var(--x-gut); } .logs .ok { color: #30d158; } .logs .wn { color: #ff9f0a; } .logs .bad { color: #ff6961; }
+.conn { padding: 4px 16px 18px; display: grid; gap: 16px; }
+.conn .lbl { font-size: 13px; color: var(--ink-2); margin-bottom: 8px; letter-spacing: -0.01em; }
+.conn .urlbox { display: flex; align-items: center; gap: 10px; background: var(--panel); border-radius: 12px; padding: 10px 10px 10px 14px; font: 500 13px/1.4 var(--mono); letter-spacing: 0; }
+.conn .urlbox span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.conn pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 14px 16px; font: 400 12.5px/1.6 var(--mono); letter-spacing: 0; overflow: auto; }
+.conn .note { font-size: 13px; color: var(--ink-3); }
+
+.toast { position: fixed; left: 50%; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px) scale(0.96); opacity: 0; z-index: 50; pointer-events: none;
+  background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); color: var(--ink);
+  border: 1px solid var(--hair); box-shadow: var(--shadow); border-radius: 980px; padding: 12px 20px; font: 500 14px/1.2 var(--text); letter-spacing: -0.01em; transition: opacity 0.3s var(--ease), transform 0.45s var(--spring); max-width: calc(100vw - 32px); text-align: center; }
+.toast.on { opacity: 1; transform: translate(-50%, 0) scale(1); }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  .tpl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1000px) {
+  .bento { grid-template-columns: 1fr 1fr; }
+  .tile.wide { grid-column: span 2; }
+}
+@media (max-width: 860px) {
+  .gnav .mid { display: none; }
+  .story .grid { grid-template-columns: 1fr; gap: 24px; align-content: center; }
+  .story .copy { min-height: 190px; }
+  .story .say p { font-size: 18px; }
+  .rail { margin-top: 140px; }
+  .win .body { height: 360px; }
+  .appwin { grid-template-columns: minmax(0, 1fr); }
+  .side { position: fixed; left: 0; top: 0; bottom: 0; width: min(300px, 86vw); height: auto; transform: translateX(-102%); transition: transform 0.45s var(--ease); background: var(--page); box-shadow: var(--shadow); }
+  .side.open { transform: none; }
+  .menubtn { display: grid; }
+  .main { padding: calc(16px + env(safe-area-inset-top, 0px)) var(--gr) 56px var(--gl); gap: 18px; }
+  .tb h1 { font-size: 24px; }
+  .composer .more { grid-template-columns: 1fr; }
+  .composer .big input { font-size: 21px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat:nth-child(3)::before { display: none; }
+  .fh-clock { font-size: 20px; }
+}
+@media (max-width: 640px) {
+  .bento { grid-template-columns: 1fr; }
+  .tile.wide { grid-column: auto; }
+  .tile { min-height: 0; padding: 28px; }
+  .stage .ingot { --s: 200px; }
+  .hero .ctas { font-size: 17px; }
+  .story .copy { min-height: 170px; }
+  .story .say h2 { font-size: 36px; }
+  .rail { margin-top: 120px; }
+  .win .body { height: 330px; }
+  .scene { padding: 20px; }
+  .code-scene pre { font-size: 11.5px; }
+  .gnav .end a.plain { display: none; }
+  .tpl { grid-template-columns: minmax(0, 1fr); }
+  .stat b { font-size: 28px; }
+  .stepper .lb { font-size: 11px; }
+  .forge-head { padding: 16px; }
+  .fh-top { gap: 12px; }
+  .forge-head .ingot.mid { --s: 48px; }
+  .outh .seg { width: 100%; }
+  .outh .seg button { padding: 7px 4px; font-size: 12px; }
+  .composer .ctl .spacer { display: none; }
+  .composer .ctl #go { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
+}
+
+body.booting [data-view] { visibility: hidden; }
+</style>
+<body class="booting">
+
+<!-- ================= LANDING ================= -->
+<main data-view="home" id="top">
+  <header class="gnav">
+    <div class="wrap">
+      <a class="brand" href="#home"><span class="ingot tiny" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>MCP Forge</a>
+      <nav class="mid" aria-label="Sections"><a href="#how">How it works</a><a href="#built">Built on</a><a href="https://nebiusglobalaihackathon.devpost.com/" target="_blank" rel="noopener">Hackathon</a></nav>
+      <div class="end"><a class="plain" id="nav-signin" href="#signin">Sign in</a><a class="pill-btn sm" id="nav-cta" href="#signup">Get started</a></div>
+    </div>
+  </header>
+
+  <section class="dark hero intro" aria-label="Introduction">
+    <p class="name">MCP Forge</p>
+    <h1><span>Docs in.</span><span class="cool">Server out.</span></h1>
+    <p class="sub">Give it any API. MCP Forge writes an MCP server, tests it, fixes what breaks, and puts it online.</p>
+    <div class="ctas"><a class="pill-btn" href="#signup">Get started</a><a class="text-link" href="#how">See how it works<span class="chev" aria-hidden="true"></span></a></div>
+    <div class="stage" id="stage">
+      <canvas id="sparks" aria-hidden="true"></canvas>
+      <div class="glow" id="glow" aria-hidden="true"></div>
+      <div class="ingot" id="heroIngot" role="img" aria-label="The MCP Forge chip, glowing hot and cooling to steel">
+        <span class="glyph"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg><span class="mark">MCP</span></span>
+      </div>
+      <div class="floor" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="dark story" id="how" aria-label="How it works">
+    <div class="pin">
+      <div class="wrap">
+        <div class="static-head"><h2 style="font-size:clamp(40px,6vw,64px)">One loop, start to finish.</h2></div>
+        <div class="grid">
+          <div>
+            <div class="copy">
+              <div class="say on" data-i="0"><h2>It reads the docs.</h2><p>Tavily pulls the live API reference, so nothing comes from stale memory.</p></div>
+              <div class="say" data-i="1"><h2>It writes the server.</h2><p>Nemotron 3 Super plans the tools, then writes the server and its tests.</p></div>
+              <div class="say" data-i="2"><h2>It breaks it, then fixes it.</h2><p>Tests run in a Nebius Serverless Job. Nemotron 3 Nano repairs whatever fails.</p></div>
+              <div class="say" data-i="3"><h2>It ships when it passes.</h2><p>With every test green, the server goes live on a Nebius Serverless Endpoint.</p></div>
+            </div>
+            <div class="rail" aria-hidden="true">
+              <div class="on"><i><b></b></i>Read</div><div><i><b></b></i>Write</div><div><i><b></b></i>Test</div><div><i><b></b></i>Ship</div>
+            </div>
+          </div>
+          <div class="win" aria-hidden="true">
+            <div class="bar"><i></i><i></i><i></i><span id="wintitle">open-meteo.com/en/docs</span></div>
+            <div class="body">
+              <div class="scene doc on" id="sc0">
+                <h4>Weather Forecast API</h4>
+                <div class="bars" id="docbars">
+                  <span style="width:92%"></span><span style="width:78%"></span>
+                  <div class="ep" data-at="0.25">GET /v1/forecast?latitude&amp;longitude&amp;daily</div>
+                  <span style="width:85%"></span><span style="width:60%"></span>
+                  <div class="ep" data-at="0.55">GET /v1/search?name&amp;count</div>
+                  <span style="width:70%"></span><span style="width:88%"></span>
+                  <div class="beam" id="beam"></div>
+                </div>
+                <div class="found" id="found"><span class="tag">2 endpoints found</span><span class="tag">3 pages read</span></div>
+              </div>
+              <div class="scene code-scene" id="sc1"><pre id="typed"></pre></div>
+              <div class="scene tests-scene" id="sc2">
+                <div class="head"><span id="trTitle">Round 1</span><span id="trScore" style="color:#8e8e93;font-weight:500">0 of 6 passed</span></div>
+                <ul id="trList"></ul>
+              </div>
+              <div class="scene ship-scene" id="sc3">
+                <span class="ingot mid" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+                <span class="live"><i></i>Live</span>
+                <span class="url">https://open-meteo.endpoints.example/mcp</span>
+                <span class="meta">6 of 6 tests passed in 2 rounds</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bento-sec" id="built">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Built on open infrastructure.</h2>
+        <p>Open models write and repair the code. Nebius runs the tests and hosts the result.</p>
+      </div>
+      <div class="bento">
+        <article class="tile wide">
+          <div><span class="who">NVIDIA Nemotron 3 Super on Nebius Token Factory</span><h3 style="margin-top:12px">Writes the server and the tests.</h3><p>Every tool gets a typed signature, a docstring, and tests with mocked HTTP.</p></div>
+<div class="v-code"><span class="d">@mcp.tool()</span>
+<span class="k">async def</span> forecast_7_day(city: str) -&gt; list[dict]:
+    <span class="s">"""High, low and rain for the next seven days."""</span>
+    lat, lon = <span class="k">await</span> _locate(city)</div>
+        </article>
+        <article class="tile">
+          <div><span class="who">NVIDIA Nemotron 3 Nano</span><h3 style="margin-top:12px">Fixes what fails.</h3><p>It reads the failing test and patches the cause.</p></div>
+          <div class="v-diff"><span class="m">- "rain_mm": d["rain_sum"][i]</span><span class="p">+ "rain_mm": d["precipitation_sum"][i]</span></div>
+        </article>
+        <article class="tile">
+          <div><span class="who">Nebius Serverless Jobs</span><h3 style="margin-top:12px">Tested in isolation.</h3><p>Each round runs in a clean container.</p></div>
+          <div class="v-dots" id="vdots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </article>
+        <article class="tile">
+          <div><span class="who">Tavily</span><h3 style="margin-top:12px">Fresh docs every time.</h3><p>Search and extract read the current reference.</p></div>
+          <div class="v-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>Open-Meteo API reference</div>
+        </article>
+        <article class="tile">
+          <div><span class="who">Nebius Serverless Endpoints</span><h3 style="margin-top:12px">Live with a token.</h3><p>Paste one config block into any MCP client.</p></div>
+          <div class="v-url"><i></i>/mcp</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="close-sec">
+    <div class="wrap">
+      <span class="ingot mid" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+      <h2>Forge your first server.</h2>
+      <p>Bring an API name. Leave with a live, tested MCP server.</p>
+      <a class="pill-btn" href="#signup">Get started</a>
+    </div>
+  </section>
+  <div class="wrap"><footer class="foot"><span>MCP Forge is open source under the MIT license. Built for the Nebius and NVIDIA Global AI Hackathon, 2026.</span><a href="https://nebiusglobalaihackathon.devpost.com/" target="_blank" rel="noopener">Hackathon page</a></footer></div>
+</main>
+<!-- ================= SIGN IN AND SIGN UP ================= -->
+<main data-view="signin" hidden>
+  <div class="auth">
+    <form class="auth-box" id="auth-form" novalidate>
+      <span class="ingot mid" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+      <h1 id="auth-title">Sign in to MCP Forge</h1>
+      <p id="auth-sub">Welcome back. Your servers are where you left them.</p>
+      <div class="seg auth-seg" id="auth-seg" role="tablist" aria-label="Account"><span class="thumb"></span><button type="button" role="tab" data-p="in">Sign in</button><button type="button" role="tab" data-p="up">Create account</button></div>
+      <div class="fgroup" id="fgroup">
+        <div class="ff" id="ff-name" hidden><input id="a-name" autocomplete="name" placeholder=" " maxlength="60"><label for="a-name">Name</label></div>
+        <div class="ff"><input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder=" " maxlength="200"><label for="a-email">Email</label></div>
+        <div class="ff"><input id="a-pw" type="password" autocomplete="current-password" placeholder=" " maxlength="200"><label for="a-pw">Password</label><button type="button" class="eye" id="a-eye" aria-pressed="false">Show</button></div>
+      </div>
+      <p class="auth-hint" id="a-hint" hidden>Use at least 8 characters.</p>
+      <p class="auth-err" id="a-err" role="alert" hidden></p>
+      <button class="pill-btn auth-go" id="a-go" type="submit"><span>Sign in</span></button>
+      <p class="auth-note" id="a-note"></p>
+      <a class="auth-back text-link" href="#home">Back to MCP Forge</a>
+    </form>
+  </div>
+</main>
+
+<!-- ================= ONBOARDING ================= -->
+<main data-view="onboarding" hidden>
+  <div class="setup">
+    <div class="setup-top">
+      <span class="brand"><span class="ingot tiny" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>MCP Forge</span>
+      <div class="dots" aria-hidden="true"><i class="on"></i><i></i></div>
+    </div>
+    <div class="setup-body">
+      <section class="st" id="st1" aria-labelledby="st1h">
+        <span class="sym" style="background:linear-gradient(160deg,#ff9f0a,#ff375f)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>
+        <h1 id="st1h">Welcome to MCP Forge</h1>
+        <p>Two quick questions, then you can forge your first server.</p>
+        <div class="group"><div class="row"><label for="ob-name">Name</label><input id="ob-name" autocomplete="given-name" placeholder="Your name" maxlength="60"></div></div>
+        <p class="ghead">What will you build servers for?</p>
+        <div class="group" role="radiogroup" aria-label="What will you build servers for?" id="ob-use">
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="dev"><span>Developer tools</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="data"><span>Data and analytics</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="web3"><span>Web3 and DeFi</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="internal"><span>Internal company APIs</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+        </div>
+      </section>
+
+      <section class="st out-r" id="st2" aria-labelledby="st2h" hidden>
+        <span class="sym" style="background:linear-gradient(160deg,#30d158,#0a9e5b)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>
+        <h1 id="st2h">Choose your defaults</h1>
+        <p>You can change these for each server.</p>
+        <div class="group">
+          <div class="row"><label for="ob-model">Writer model</label><select id="ob-model"><option value="">Automatic</option><option value="super">Nemotron 3 Super</option><option value="ultra">Nemotron 3 Ultra</option><option value="nano">Nemotron 3 Nano</option></select></div>
+          <div class="row"><span class="lbl" id="ob-rounds-l">Fix rounds</span><div class="seg" id="ob-rounds" role="radiogroup" aria-labelledby="ob-rounds-l"><span class="thumb"></span><button type="button" role="radio" data-v="1">1</button><button type="button" role="radio" data-v="3">3</button><button type="button" role="radio" data-v="5">5</button></div></div>
+        </div>
+        <p class="ghead">Where tests run</p>
+        <div class="group" role="radiogroup" aria-label="Where tests run" id="ob-runner">
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="nebius"><span>Nebius Serverless Jobs<small id="ob-nebius-note">Isolated containers on Nebius.</small></span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="local"><span>The server's own machine<small>Good for trying things out. Code is not sandboxed.</small></span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+        </div>
+      </section>
+    </div>
+    <div class="setup-foot">
+      <button class="pill-btn" type="button" id="ob-next">Continue</button>
+      <button class="back" type="button" id="ob-back" hidden>Back</button>
+    </div>
+  </div>
+</main>
+
+<!-- ================= DASHBOARD ================= -->
+<div data-view="app" hidden>
+  <div class="appwin">
+    <div class="scrim" id="scrim" hidden></div>
+    <aside class="side" id="side" aria-label="Servers">
+      <a class="brand" href="#home"><span class="ingot tiny" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>MCP Forge</a>
+      <button class="newbtn" type="button" id="newbtn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 2v10M2 7h10"/></svg>New server</button>
+      <label class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg><input id="srv-q" type="search" placeholder="Search servers" aria-label="Search servers"></label>
+      <div class="srvwrap">
+        <h4>Servers</h4>
+        <div class="srv" id="recent" role="list"></div>
+      </div>
+      <div class="me">
+        <span class="avatar" id="avatar" aria-hidden="true">?</span>
+        <div class="who"><b id="uname">You</b><small id="uemail"></small></div>
+        <div class="acts"><a href="#onboarding">Setup</a><button type="button" id="signout">Sign out</button></div>
+      </div>
+    </aside>
+
+    <section class="main" aria-label="Forge">
+      <div class="tb">
+        <button class="menubtn" type="button" id="menubtn" aria-label="Show servers" aria-expanded="false"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 5h12M3 9h12M3 13h12"/></svg></button>
+        <div class="tt"><h1 id="hello">Hello</h1><p class="crumb" id="crumb"></p></div>
+        <div class="r"><div class="result" id="result" aria-live="polite"></div><span class="badge" id="modepill"></span></div>
+      </div>
+
+      <div class="banner" id="banner" role="status" hidden></div>
+
+      <form class="composer" id="brief" autocomplete="off">
+        <div class="big">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9.5" cy="9.5" r="6.5"/><path d="M14.5 14.5L20 20"/></svg>
+          <input id="f-api" aria-label="API name" placeholder="Which API should we forge?" maxlength="80">
+        </div>
+        <div class="more">
+          <div class="sub"><label for="f-url">Docs URL, optional</label><input id="f-url" placeholder="https://" maxlength="400"></div>
+          <div class="sub"><label for="f-tools">Tools you want</label><input id="f-tools" placeholder="Describe the tools in a sentence" maxlength="600"></div>
+        </div>
+        <div class="ctl">
+          <span class="chipsel"><select id="f-model" aria-label="Writer model"><option value="">Automatic model</option><option value="super">Nemotron 3 Super</option><option value="ultra">Nemotron 3 Ultra</option><option value="nano">Nemotron 3 Nano</option></select></span>
+          <span class="lab" id="f-rounds-l">Fix rounds</span>
+          <div class="seg" id="f-rounds" role="radiogroup" aria-labelledby="f-rounds-l"><span class="thumb"></span><button type="button" role="radio" data-v="1">1</button><button type="button" role="radio" data-v="3">3</button><button type="button" role="radio" data-v="5">5</button></div>
+          <span class="spacer"></span>
+          <button class="ghost stopbtn" type="button" id="stop" hidden>Stop</button>
+          <button class="pill-btn" id="go" type="submit">Forge server</button>
+        </div>
+      </form>
+
+      <!-- home: stats and templates -->
+      <div class="home-pane" id="home-pane">
+        <div class="stats" id="stats">
+          <div class="stat"><b data-k="count">0</b><span>Servers forged</span></div>
+          <div class="stat"><b data-k="live">0</b><span>Live now</span></div>
+          <div class="stat"><b data-k="tests">0</b><span>Tests passed</span></div>
+          <div class="stat"><b data-k="avg">0</b><span>Average build, seconds</span></div>
+        </div>
+        <div class="sect-h"><h2>Start from a popular API</h2><p>Pick one to fill in the form. Change anything before you forge.</p></div>
+        <div class="tpl" id="tpl"></div>
+      </div>
+
+      <!-- a run: forge head, timeline and output -->
+      <div class="run-pane" id="run-pane" hidden>
+        <section class="forge-head panel" aria-label="Progress">
+          <div class="fh-top">
+            <span class="ingot mid" id="fIngot" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+            <div class="fh-t"><h2 id="fh-name">Server</h2><p id="fh-status">Starting</p></div>
+            <div class="fh-clock" id="fh-clock" aria-label="Elapsed time">00:00</div>
+          </div>
+          <div class="stepper" id="stepper">
+            <div class="track" aria-hidden="true"><b id="trackfill"></b></div>
+            <ol>
+              <li data-n="0"><span class="node"></span><span class="lb">Docs</span></li>
+              <li data-n="1"><span class="node"></span><span class="lb">Plan</span></li>
+              <li data-n="2"><span class="node"></span><span class="lb">Write</span></li>
+              <li data-n="3"><span class="node"></span><span class="lb">Test and fix</span></li>
+              <li data-n="4"><span class="node"></span><span class="lb">Ship</span></li>
+            </ol>
+          </div>
+        </section>
+
+        <div class="cols">
+          <section class="panel" aria-labelledby="h-run">
+            <div class="panel-h"><h2 id="h-run">Steps</h2><span class="badge" id="roundpill">Ready</span></div>
+            <ol class="tl" id="pipe"></ol>
+          </section>
+          <section class="panel" aria-labelledby="h-out">
+            <div class="outh">
+              <h2 id="h-out">Output</h2>
+              <div class="seg" id="outseg" role="tablist" aria-label="Output"><span class="thumb"></span>
+                <button type="button" role="tab" data-p="p-code" id="t-code">Code</button><button type="button" role="tab" data-p="p-tests" id="t-tests">Tests</button><button type="button" role="tab" data-p="p-try" id="t-try">Try it</button><button type="button" role="tab" data-p="p-logs" id="t-logs">Logs</button><button type="button" role="tab" data-p="p-conn" id="t-conn">Connect</button>
+              </div>
+            </div>
+            <div class="tp" id="p-code" role="tabpanel" aria-labelledby="t-code">
+              <div class="codewrap">
+                <div class="codehead"><div class="ftabs" id="ftabs"></div><span class="codemeta" id="codemeta"></span></div>
+                <div class="codebox" id="codebox"><pre id="code"></pre></div>
+              </div>
+              <div class="pfoot"><button class="ghost" type="button" id="dlzip">Download zip</button><button class="ghost" type="button" id="copycode">Copy code</button></div>
+            </div>
+            <div class="tp" id="p-tests" role="tabpanel" aria-labelledby="t-tests" hidden><div class="tsum" id="tsum"></div><ul class="tests" id="tests"></ul></div>
+            <div class="tp" id="p-try" role="tabpanel" aria-labelledby="t-try" hidden>
+              <div class="try" id="try"></div>
+            </div>
+            <div class="tp" id="p-logs" role="tabpanel" aria-labelledby="t-logs" hidden><pre class="logs" id="logs"></pre></div>
+            <div class="tp" id="p-conn" role="tabpanel" aria-labelledby="t-conn" hidden>
+              <div class="conn">
+                <div><p class="lbl">Endpoint</p><div class="urlbox"><span id="url"></span><button class="ghost" type="button" id="copyurl">Copy</button></div></div>
+                <div><p class="lbl">Add to any MCP client</p><pre id="cfg">{}</pre></div>
+                <div class="pfoot" style="padding:0;justify-content:space-between"><p class="note" id="connnote"></p><button class="ghost" type="button" id="copycfg">Copy config</button></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  /* ---------- storage (memory fallback when the browser blocks it) ---------- */
+  var mem = {};
+  function ls(k, v) {
+    try {
+      if (v === undefined) { var x = localStorage.getItem(k); return x ? JSON.parse(x) : (mem[k] || null); }
+      if (v === null) { localStorage.removeItem(k); delete mem[k]; } else localStorage.setItem(k, JSON.stringify(v));
+    } catch (e) { if (v === undefined) return mem[k] || null; if (v === null) delete mem[k]; else mem[k] = v; }
+  }
+
+  /* ---------- who is signed in ----------
+     "server" mode: a real MCP Forge server answers. Accounts, sessions and runs live in its database.
+     "demo" mode: no server found (for example the hosted preview). Everything stays in this browser. */
+  var MODE = "demo", HEALTH = null, ME = null, READY = false;
+
+  function api(path, opt) {
+    opt = opt || {};
+    opt.credentials = "same-origin";
+    opt.headers = Object.assign({ "Content-Type": "application/json" }, opt.headers || {});
+    if (opt.body && typeof opt.body !== "string") opt.body = JSON.stringify(opt.body);
+    return fetch(path, opt).then(function (r) {
+      return r.json().catch(function () { return null; }).then(function (d) {
+        if (!r.ok) { var e = new Error(d && typeof d.detail === "string" ? d.detail : "The server answered " + r.status + "."); e.status = r.status; throw e; }
+        return d;
+      });
+    });
+  }
+  function sha(s) {
+    try {
+      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)).then(function (b) {
+        return [].map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+      });
+    } catch (e) { return Promise.resolve(btoa(unescape(encodeURIComponent(s)))); }
+  }
+  function demoMe(email) { var a = (ls("forge.demo.accounts") || {})[email]; return a ? { email: email, name: a.name, prefs: a.prefs || {} } : null; }
+
+  var Auth = {
+    signup: function (name, email, pw) {
+      email = email.toLowerCase();
+      if (MODE === "server") return api("/api/auth/signup", { method: "POST", body: { name: name, email: email, password: pw } }).then(function (u) { ME = u; });
+      var acc = ls("forge.demo.accounts") || {};
+      if (acc[email]) return Promise.reject(new Error("An account with this email already exists. Sign in instead."));
+      return sha(pw).then(function (h) {
+        acc[email] = { name: name || email.split("@")[0], h: h, prefs: {} };
+        ls("forge.demo.accounts", acc); ls("forge.demo.me", email); ME = demoMe(email);
+      });
+    },
+    signin: function (email, pw) {
+      email = email.toLowerCase();
+      if (MODE === "server") return api("/api/auth/signin", { method: "POST", body: { email: email, password: pw } }).then(function (u) { ME = u; });
+      var acc = ls("forge.demo.accounts") || {};
+      return sha(pw).then(function (h) {
+        if (!acc[email] || acc[email].h !== h) throw new Error("Email or password is wrong.");
+        ls("forge.demo.me", email); ME = demoMe(email);
+      });
+    },
+    signout: function () {
+      var p = MODE === "server" ? api("/api/auth/signout", { method: "POST" }).catch(function () { }) : Promise.resolve();
+      return p.then(function () { ls("forge.demo.me", null); ME = null; });
+    },
+    save: function (prefs, name) {
+      ME.prefs = prefs; if (name) ME.name = name;
+      if (MODE === "server") return api("/api/me", { method: "PATCH", body: { prefs: prefs, name: name || null } }).then(function (u) { ME = u; });
+      var acc = ls("forge.demo.accounts") || {}; if (acc[ME.email]) { acc[ME.email].prefs = prefs; if (name) acc[ME.email].name = name; ls("forge.demo.accounts", acc); }
+      return Promise.resolve();
+    }
+  };
+  function getPrefs() { return (ME && ME.prefs) || {}; }
+
+  function boot() {
+    var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 2500);
+    return fetch("/api/health", { signal: ctl.signal, credentials: "same-origin" })
+      .then(function (r) { clearTimeout(to); return r.ok ? r.json() : null; })
+      .then(function (h) { if (!h || h.ok !== true || !h.auth) throw 0; MODE = "server"; HEALTH = h; return api("/api/me").then(function (u) { ME = u; }, function () { ME = null; }); })
+      .catch(function () { MODE = "demo"; HEALTH = null; var em = ls("forge.demo.me"); ME = em ? demoMe(em) : null; })
+      .then(function () { READY = true; document.body.classList.remove("booting"); syncNav(); route(); });
+  }
+
+  /* ---------- segmented controls ---------- */
+    /* ---------- segmented controls ---------- */
+  function segInit(el, onPick) {
+    var btns = [].slice.call(el.querySelectorAll("button")), thumb = el.querySelector(".thumb");
+    function set(btn, silent) {
+      btns.forEach(function (b) { var on = b === btn; b.setAttribute(b.getAttribute("role") === "tab" ? "aria-selected" : "aria-checked", String(on)); b.tabIndex = on ? 0 : -1; });
+      el.dataset.value = btn.getAttribute("data-v") || btn.getAttribute("data-p");
+      place(); if (!silent && onPick) onPick(el.dataset.value);
+    }
+    function place() {
+      var on = btns.filter(function (b) { return b.getAttribute("aria-selected") === "true" || b.getAttribute("aria-checked") === "true"; })[0];
+      if (!on || !on.offsetWidth) return;
+      thumb.style.width = on.offsetWidth + "px"; thumb.style.transform = "translateX(" + (on.offsetLeft - 2) + "px)";
+    }
+    btns.forEach(function (b, i) {
+      b.addEventListener("click", function () { set(b); });
+      b.addEventListener("keydown", function (e) { var n = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (n) { var t = btns[(i + n + btns.length) % btns.length]; t.focus(); set(t); e.preventDefault(); } });
+    });
+    window.addEventListener("resize", place);
+    return { set: function (v, silent) { var b = btns.filter(function (x) { return (x.getAttribute("data-v") || x.getAttribute("data-p")) === String(v); })[0] || btns[0]; set(b, silent); }, place: place };
+  }
+
+  /* ---------- views ---------- */
+  var current = "";
+  function go(h) { if (location.hash === "#" + h) route(); else location.hash = h; }
+  function route() {
+    var h = (location.hash || "").replace("#", ""), user = ME, prefs = getPrefs(), v = "home";
+    if ((h === "app" || h === "onboarding" || h === "signin" || h === "signup") && !READY) return;
+    if (h === "app") v = !user ? "signin" : (!prefs.done ? "onboarding" : "app");
+    else if (h === "onboarding") v = !user ? "signin" : "onboarding";
+    else if (h === "signin" || h === "signup") v = user ? (prefs.done ? "app" : "onboarding") : "signin";
+    if ((h === "app" || h === "onboarding") && v !== h) { location.hash = v === "signin" ? "signup" : v; return; }
+    if ((h === "signin" || h === "signup") && v !== "signin") { location.hash = v; return; }
+    var changed = v !== current; current = v;
+    [].forEach.call(document.querySelectorAll("[data-view]"), function (el) { el.hidden = el.getAttribute("data-view") !== v; });
+    if (v === "home") {
+      syncNav(); heroStart();
+      if (h === "how" || h === "built") { var el = $(h); if (el) el.scrollIntoView(); } else if (changed) window.scrollTo(0, 0);
+      storyMeasure();
+    } else { heroStop(); window.scrollTo(0, 0); }
+    if (v === "signin") { setAuthMode(h === "signup" ? "up" : "in"); if (changed) setTimeout(function () { (h === "signup" ? $("a-name") : $("a-email")).focus(); }, 80); }
+    if (v === "onboarding" && changed) obOpen();
+    if (v === "app" && changed) appOpen();
+  }
+  window.addEventListener("hashchange", route);
+  function syncNav() {
+    var u = ME;
+    $("nav-signin").hidden = !!u;
+    $("nav-cta").textContent = u ? "Open dashboard" : "Get started";
+    $("nav-cta").setAttribute("href", u ? "#app" : "#signup");
+  }
+
+    /* ---------- hero: the chip cools, sparks fly, it follows the pointer ---------- */
+  var ingot = $("heroIngot"), glow = $("glow"), cv = $("sparks"), cx = cv.getContext("2d");
+  var heat = reduce ? 0 : 1, cooled = reduce, sparks = [], raf = 0, running = false, t0 = 0, W = 0, H = 0, DPR = 1;
+  function setHeat(h) { ingot.style.setProperty("--h", h.toFixed(3)); glow.style.setProperty("--h", h.toFixed(3)); }
+  setHeat(heat);
+  function sizeCanvas() { var r = cv.getBoundingClientRect(); DPR = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR; }
+  function spark() {
+    var a = Math.random() * Math.PI * 2, sp = 1.5 + Math.random() * 4.5;
+    return { x: W / 2 + Math.cos(a) * 60, y: H / 2 + Math.sin(a) * 60, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.4, life: 1, r: 0.7 + Math.random() * 1.6 };
+  }
+  function frame(t) {
+    if (!t0) t0 = t;
+    var el = (t - t0) / 1000;
+    if (!cooled) { heat = Math.max(0, 1 - Math.pow(Math.max(0, el - 0.5) / 2.6, 1.4)); setHeat(heat); if (heat <= 0) cooled = true; }
+    cx.setTransform(DPR, 0, 0, DPR, 0, 0); cx.clearRect(0, 0, W, H);
+    var n = heat > 0.05 ? Math.round(heat * 6) : 0;
+    for (var i = 0; i < n; i++) sparks.push(spark());
+    cx.globalCompositeOperation = "lighter";
+    for (var j = sparks.length - 1; j >= 0; j--) {
+      var p = sparks[j]; p.x += p.vx; p.y += p.vy; p.vy += 0.07; p.vx *= 0.99; p.life -= 0.016;
+      if (p.life <= 0) { sparks.splice(j, 1); continue; }
+      cx.strokeStyle = "rgba(255," + Math.round(150 + 90 * p.life) + "," + Math.round(60 * p.life) + "," + p.life.toFixed(2) + ")";
+      cx.lineWidth = p.r; cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(p.x - p.vx * 2.5, p.y - p.vy * 2.5); cx.stroke();
+    }
+    cx.globalCompositeOperation = "source-over";
+    if (running && (!cooled || sparks.length)) raf = requestAnimationFrame(frame); else running = false;
+  }
+  var heroBooted = false;
+  function heroStart() {
+    if (heroBooted || reduce) return; heroBooted = true;
+    sizeCanvas(); running = true; raf = requestAnimationFrame(frame);
+  }
+  function heroStop() { running = false; cancelAnimationFrame(raf); }
+  var stage = $("stage");
+  if (!reduce && window.matchMedia("(pointer: fine)").matches) {
+    window.addEventListener("pointermove", function (e) {
+      if (current !== "home") return;
+      var r = stage.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+      var dx = (e.clientX - (r.left + r.width / 2)) / innerWidth, dy = (e.clientY - (r.top + r.height / 2)) / innerHeight;
+      ingot.style.transform = "rotateY(" + (dx * 22).toFixed(2) + "deg) rotateX(" + (-dy * 18).toFixed(2) + "deg)";
+    }, { passive: true });
+  }
+
+  /* ---------- pinned scroll story ---------- */
+  var story = $("how"), says = [].slice.call(document.querySelectorAll(".say")), rails = [].slice.call(document.querySelectorAll(".rail div"));
+  var scenes = [$("sc0"), $("sc1"), $("sc2"), $("sc3")], titles = ["open-meteo.com/en/docs", "server.py", "Serverless Job", "Serverless Endpoint"];
+  var STORY_CODE = 'from mcp.server.fastmcp import FastMCP\nimport httpx\n\nmcp = FastMCP("open-meteo")\n\n@mcp.tool()\nasync def forecast_7_day(city: str) -> list[dict]:\n    """High, low and rain for the next seven days."""\n    lat, lon = await _locate(city)\n    async with httpx.AsyncClient(timeout=10) as http:\n        r = await http.get(API, params={\n            "latitude": lat, "longitude": lon,\n            "daily": "temperature_2m_max,precipitation_sum"})\n    return parse_days(r.json()["daily"])';
+  var STORY_TESTS = [["Lists both tools", 1], ["Returns a temperature for Paris", 1], ["Explains an unknown city", 0], ["Returns seven days", 1], ["Has high, low and rain every day", 0], ["Times out cleanly", 1]];
+  $("trList").innerHTML = STORY_TESTS.map(function (t) { return '<li data-ok="' + t[1] + '"><span class="dot"><svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M2 5.2l2 2 4-4.4"/></svg></span><span>' + t[0] + "</span><small></small></li>"; }).join("");
+  var trItems = [].slice.call($("trList").children), eps = [].slice.call(document.querySelectorAll(".doc .ep"));
+  var sTop = 0, sLen = 1, lastPhase = -1, lastTyped = -1;
+  function storyMeasure() { if (reduce) return; var r = story.getBoundingClientRect(); sTop = r.top + scrollY; sLen = Math.max(1, story.offsetHeight - innerHeight); onScroll(); }
+  function hlStory(src) { return src.split("\n").map(hlLine).join("\n"); }
+  function onScroll() {
+    if (current !== "home" || reduce) return;
+    var p = Math.min(1, Math.max(0, (scrollY - sTop) / sLen)), f = p * 4, ph = Math.min(3, Math.floor(f)), loc = Math.min(1, f - ph);
+    if (ph !== lastPhase) {
+      says.forEach(function (s, i) { s.classList.toggle("on", i === ph); });
+      scenes.forEach(function (s, i) { s.classList.toggle("on", i === ph); });
+      $("wintitle").textContent = titles[ph]; lastPhase = ph;
+    }
+    rails.forEach(function (r, i) { r.classList.toggle("on", i <= ph); r.querySelector("b").style.width = (i < ph ? 100 : i === ph ? loc * 100 : 0) + "%"; });
+    if (ph === 0) {
+      $("beam").style.top = (loc * 210 - 30) + "px";
+      eps.forEach(function (e) { e.classList.toggle("lit", loc > parseFloat(e.getAttribute("data-at"))); });
+      $("found").style.opacity = loc > 0.7 ? 1 : 0; $("found").style.transition = "opacity .4s";
+    } else if (ph === 1) {
+      var n = Math.round(Math.min(1, loc * 1.15) * STORY_CODE.length);
+      if (n !== lastTyped) { lastTyped = n; $("typed").innerHTML = hlStory(STORY_CODE.slice(0, n)) + '<span class="caret"></span>'; }
+    } else if (ph === 2) {
+      var shown = Math.min(6, Math.floor(loc * 12)), fixed = loc > 0.68;
+      trItems.forEach(function (li, i) {
+        var ok = li.getAttribute("data-ok") === "1";
+        li.classList.toggle("in", i < shown);
+        li.classList.toggle("bad", !ok && !fixed);
+        li.classList.toggle("fixed", !ok && fixed);
+        li.querySelector("small").textContent = !ok && fixed ? "Fixed by Nano" : "";
+      });
+      var passed = trItems.filter(function (li, i) { return i < shown && (li.getAttribute("data-ok") === "1" || fixed); }).length;
+      $("trTitle").textContent = fixed ? "Round 2" : "Round 1"; $("trScore").textContent = passed + " of 6 passed";
+    }
+  }
+  if (reduce) {
+    story.classList.add("static");
+    $("typed").innerHTML = hlStory(STORY_CODE);
+    trItems.forEach(function (li) { li.classList.add("in"); if (li.getAttribute("data-ok") === "0") { li.classList.add("fixed"); li.querySelector("small").textContent = "Fixed by Nano"; } });
+    $("trTitle").textContent = "Round 2"; $("trScore").textContent = "6 of 6 passed";
+    eps.forEach(function (e) { e.classList.add("lit"); }); $("beam").hidden = true;
+  } else {
+    $("found").style.opacity = 0;
+    window.addEventListener("scroll", function () { requestAnimationFrame(onScroll); }, { passive: true });
+    window.addEventListener("resize", storyMeasure);
+    window.addEventListener("load", storyMeasure);
+  }
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("go"); io.unobserve(e.target); } }); }, { threshold: 0.6 });
+    io.observe($("vdots"));
+  } else $("vdots").classList.add("go");
+
+    /* ================= SIGN IN AND SIGN UP ================= */
+  var authMode = "in", authBusy = false;
+  var authSeg = segInit($("auth-seg"), function (v) { location.hash = v === "up" ? "signup" : "signin"; });
+  function setAuthMode(m) {
+    authMode = m; var up = m === "up";
+    authSeg.set(m, true);
+    $("auth-title").textContent = up ? "Create your account" : "Sign in to MCP Forge";
+    $("auth-sub").textContent = up ? "It takes a few seconds. No card needed." : "Welcome back. Your servers are where you left them.";
+    $("ff-name").hidden = !up; $("a-hint").hidden = !up; $("a-go").querySelector("span").textContent = up ? "Create account" : "Sign in";
+    $("a-pw").setAttribute("autocomplete", up ? "new-password" : "current-password");
+    $("a-err").hidden = true;
+    $("a-note").textContent = MODE === "demo" ? "Demo mode: no MCP Forge server was found, so accounts stay in this browser." : "Passwords are hashed on the server. Sessions end when you sign out.";
+    setTimeout(authSeg.place, 20);
+  }
+  function authErr(msg) {
+    var e = $("a-err"), f = $("fgroup"); e.textContent = msg; e.hidden = false;
+    f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
+  }
+  $("a-eye").addEventListener("click", function () {
+    var show = $("a-pw").type === "password"; $("a-pw").type = show ? "text" : "password";
+    $("a-eye").textContent = show ? "Hide" : "Show"; $("a-eye").setAttribute("aria-pressed", String(show));
+  });
+  $("auth-form").addEventListener("submit", function (e) {
+    e.preventDefault(); if (authBusy) return;
+    var em = $("a-email").value.trim(), pw = $("a-pw").value, nm = $("a-name").value.trim(), up = authMode === "up", msg = "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) msg = "Enter a valid email, like you@example.com.";
+    else if (!pw) msg = "Enter your password.";
+    else if (up && pw.length < 8) msg = "Use at least 8 characters for your password.";
+    if (msg) { authErr(msg); return; }
+    authBusy = true; $("a-err").hidden = true; $("a-go").classList.add("busy");
+    (up ? Auth.signup(nm, em, pw) : Auth.signin(em, pw)).then(function () {
+      $("a-pw").value = ""; go(getPrefs().done ? "app" : "onboarding");
+    }, function (err) { authErr(err.message || "Something went wrong. Try again."); })
+      .then(function () { authBusy = false; $("a-go").classList.remove("busy"); });
+  });
+  $("signout").addEventListener("click", function () { Auth.signout().then(function () { S.runs = []; resetRun(); go("home"); }); });
+
+  /* ================= ONBOARDING (two steps, no keys) ================= */
+  var obStep = 1, obRounds = segInit($("ob-rounds"));
+  function radioGroup(el) {
+    var rows = [].slice.call(el.querySelectorAll("button.row"));
+    rows.forEach(function (r) { r.addEventListener("click", function () { if (r.getAttribute("aria-disabled") === "true") return; rows.forEach(function (o) { o.setAttribute("aria-checked", String(o === r)); }); }); });
+    return {
+      get: function () { var r = rows.filter(function (x) { return x.getAttribute("aria-checked") === "true"; })[0]; return r ? r.getAttribute("data-v") : ""; },
+      set: function (v) { rows.forEach(function (o) { o.setAttribute("aria-checked", String(o.getAttribute("data-v") === v)); }); },
+      rows: rows
+    };
+  }
+  var obUse = radioGroup($("ob-use")), obRunner = radioGroup($("ob-runner"));
+  function nebiusOk() { return MODE === "demo" || !!(HEALTH && HEALTH.runners && HEALTH.runners.indexOf("nebius") >= 0); }
+  function obShow(n, dir) {
+    var prev = obStep; obStep = n;
+    [1, 2].forEach(function (i) {
+      var s = $("st" + i);
+      if (i === n) { s.hidden = false; s.classList.add(dir < 0 ? "out-l" : "out-r"); void s.offsetWidth; s.classList.remove("out-l", "out-r"); }
+      else if (i === prev && prev !== n) { s.classList.add(dir < 0 ? "out-r" : "out-l"); setTimeout(function () { if (obStep !== i) s.hidden = true; }, 450); }
+      else s.hidden = true;
+    });
+    [].forEach.call(document.querySelectorAll(".dots i"), function (d, i) { d.className = i === n - 1 ? "on" : ""; });
+    $("ob-back").hidden = n === 1; $("ob-next").textContent = n === 2 ? "Open dashboard" : "Continue";
+    if (n === 2) setTimeout(obRounds.place, 30);
+  }
+  function obOpen() {
+    var p = getPrefs();
+    $("ob-name").value = (ME && ME.name) || ""; $("ob-model").value = p.model || ""; obRounds.set(p.rounds || "3", true); obUse.set(p.use || "");
+    var ok = nebiusOk(), nb = obRunner.rows[0];
+    nb.setAttribute("aria-disabled", String(!ok));
+    $("ob-nebius-note").textContent = ok ? "Isolated containers on Nebius." : "Needs the Nebius CLI on the server. It was not found.";
+    var want = p.runner || (ok && HEALTH && HEALTH.runner === "nebius" ? "nebius" : (ok && MODE === "demo" ? "nebius" : "local"));
+    if (want === "nebius" && !ok) want = "local";
+    obRunner.set(want); obStep = 1; obShow(1, 1);
+  }
+  $("ob-back").addEventListener("click", function () { obShow(Math.max(1, obStep - 1), -1); });
+  $("ob-next").addEventListener("click", function () {
+    if (obStep < 2) { obShow(2, 1); return; }
+    var name = $("ob-name").value.trim() || (ME && ME.name) || "there", p = Object.assign({}, getPrefs());
+    p.done = true; p.use = obUse.get(); p.model = $("ob-model").value; p.rounds = $("ob-rounds").dataset.value || "3"; p.runner = obRunner.get() || "local";
+    $("ob-next").disabled = true;
+    Auth.save(p, name).then(function () { go("app"); }, function (e) { toast(e.message || "Could not save your setup."); }).then(function () { $("ob-next").disabled = false; });
+  });
+
+  /* ================= DASHBOARD ================= */
+  var S = { view: "home", runs: [], cur: null, steps: [], files: {}, prev: {}, tests: [], round: 0, failedBefore: {}, logs: [], result: null, deploy: null,
+            file: "server.py", t0: 0, busy: false, events: [], name: "", ctl: null, timers: [], clockT: 0, rest: false, anim: false, tools: null, toolsFor: null, tryOut: null };
+  var fRounds = segInit($("f-rounds")), outSeg = segInit($("outseg"), function (pid) {
+    ["p-code", "p-tests", "p-try", "p-logs", "p-conn"].forEach(function (id) { $(id).hidden = id !== pid; });
+    if (pid === "p-try") renderTry();
+  });
+    var SVG = {
+    wait: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="var(--line)" stroke-width="1.6"/></svg>',
+    run: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="color-mix(in srgb, var(--blue) 20%, transparent)" stroke-width="2"/><path class="ring-run" d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"/></svg>',
+    done: '<svg viewBox="0 0 24 24"><circle class="pop" cx="12" cy="12" r="10" fill="#34c759"/><path class="draw" d="M7.5 12.4l3 3 6-6.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    warn: '<svg viewBox="0 0 24 24"><circle class="pop" cx="12" cy="12" r="10" fill="#ff9f0a"/><path d="M12 7v6M12 16.5v.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    fail: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ff3b30"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+    pass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#34c759"/><path d="M7.5 12.4l3 3 6-6.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+    function hlLine(line) {
+    var cm = "", idx = -1, q = false;
+    for (var j = 0; j < line.length; j++) { var ch = line[j]; if (ch === '"' || ch === "'") q = q === ch ? false : (q || ch); if (ch === "#" && !q) { idx = j; break; } }
+    if (idx >= 0) { cm = '<span class="c">' + esc(line.slice(idx)) + "</span>"; line = line.slice(0, idx); }
+    var parts = line.split(/("[^"]*"?|'[^']*'?)/), out = "";
+    parts.forEach(function (seg, i) {
+      if (i % 2) { out += '<span class="s">' + esc(seg) + "</span>"; return; }
+      out += esc(seg)
+        .replace(/\b(from|import|async|await|def|return|if|not|with|as|for|in|raise|or|and|class|try|except|else|elif|None|True|False|lambda)\b/g, '<span class="k">$1</span>')
+        .replace(/(@[\w.]+(\(\))?)/g, '<span class="d">$1</span>')
+        .replace(/\b(\d+)\b/g, '<span class="n">$1</span>');
+    });
+    return out + cm;
+  }
+
+  var TPL = [
+    { n: "Open-Meteo weather", m: "OM", c: ["#64d2ff", "#0a84ff"], url: "https://open-meteo.com/en/docs", tools: "Current weather for a city. Seven day forecast.", d: "Weather with no API key" },
+    { n: "CoinGecko prices", m: "CG", c: ["#ffd60a", "#ff9f0a"], url: "https://docs.coingecko.com/v3.0.1/reference/introduction", tools: "Price of a coin in any currency. Top coins by market cap.", d: "Crypto prices and markets" },
+    { n: "GitHub issues", m: "GH", c: ["#8e8e93", "#3a3a3c"], url: "https://docs.github.com/en/rest/issues/issues", tools: "List open issues for a repo. Read one issue with its comments.", d: "Read issues from any repo" },
+    { n: "Hacker News", m: "HN", c: ["#ff9f0a", "#ff6a1a"], url: "https://github.com/HackerNews/API", tools: "Top stories. One story with its first comments.", d: "Top stories and comments" },
+    { n: "REST Countries", m: "RC", c: ["#30d158", "#0a9e5b"], url: "https://restcountries.com/", tools: "Find a country by name. List countries in a region.", d: "Facts about every country" },
+    { n: "PokeAPI", m: "PK", c: ["#ff453a", "#c93400"], url: "https://pokeapi.co/docs/v2", tools: "Get a pokemon by name with its types and stats.", d: "Games data, great for demos" }
+  ];
+  $("tpl").innerHTML = TPL.map(function (t, i) {
+    return '<button type="button" class="tcard" data-i="' + i + '" style="animation-delay:' + (i * 55) + 'ms"><span class="mono" style="background:linear-gradient(150deg,' + t.c[0] + "," + t.c[1] + ')">' + t.m + '</span><span><b>' + esc(t.n) + "</b><small>" + esc(t.d) + "</small><em>" + esc(t.url.replace(/^https?:\/\//, "").slice(0, 38)) + "</em></span></button>";
+  }).join("");
+  [].forEach.call(document.querySelectorAll(".tcard"), function (b) {
+    b.addEventListener("click", function () {
+      var t = TPL[+b.getAttribute("data-i")];
+      $("f-api").value = t.n; $("f-url").value = t.url; $("f-tools").value = t.tools;
+      var c = $("brief"); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash");
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); $("f-api").focus();
+      toast("Filled in " + t.n + ". Press Forge server.");
+    });
+  });
+
+  function hello() { var h = new Date().getHours(), g = h < 5 ? "Hello" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; return g + ", " + ((ME && ME.name) || "there").split(" ")[0]; }
+  function ago(ts) {
+    var s = Math.max(1, Math.round(Date.now() / 1000 - ts));
+    if (s < 60) return "just now"; if (s < 3600) return Math.round(s / 60) + " min ago"; if (s < 86400) return Math.round(s / 3600) + " h ago"; return Math.round(s / 86400) + " d ago";
+  }
+  function countTo(el, to) {
+    var from = parseInt(el.textContent, 10) || 0; if (reduce || from === to) { el.textContent = to; return; }
+    var t0 = performance.now(), d = 700;
+    (function f(t) { var k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (to - from) * e); if (k < 1) requestAnimationFrame(f); })(t0);
+  }
+
+  /* ---------- run storage: the server database, or this browser in demo mode ---------- */
+  function demoKey() { return "forge.demo.runs." + (ME ? ME.email : "none"); }
+  var Runs = {
+    list: function () {
+      if (MODE === "server") return api("/api/runs");
+      return Promise.resolve((ls(demoKey()) || []).map(function (r) { return { id: r.id, api_name: r.api_name, created: r.created, status: r.status, passed: r.passed, total: r.total, secs: r.secs, url: r.url }; }));
+    },
+    get: function (id) {
+      if (MODE === "server") return api("/api/runs/" + id);
+      var r = (ls(demoKey()) || []).filter(function (x) { return x.id === id; })[0];
+      return r ? Promise.resolve(r) : Promise.reject(new Error("That server was not found."));
+    },
+    del: function (id) {
+      if (MODE === "server") return api("/api/runs/" + id, { method: "DELETE" });
+      ls(demoKey(), (ls(demoKey()) || []).filter(function (x) { return x.id !== id; })); return Promise.resolve();
+    },
+    saveDemo: function (rec) { var a = ls(demoKey()) || []; a.unshift(rec); ls(demoKey(), a.slice(0, 20)); }
+  };
+  function refreshRuns() { return Runs.list().then(function (r) { S.runs = r || []; renderRecent(); renderStats(); }, function () { }); }
+
+  /* ---------- renderers ---------- */
+  var STEP_GROUP = { docs: 0, plan: 1, write: 2, deploy: 4 };
+  function groupOf(key) { return key in STEP_GROUP ? STEP_GROUP[key] : (/^(test|fix)/.test(key) ? 3 : -1); }
+  function renderBanner() {
+    var b = $("banner"), msg = "";
+    if (MODE === "demo") msg = "<b>Demo mode.</b> No MCP Forge server was found, so this plays a sample run. Start the server to forge real servers.";
+    else if (HEALTH && (!HEALTH.nebius_key || !HEALTH.tavily_key)) msg = "<b>The server needs its keys.</b> Add <code>NEBIUS_API_KEY</code> and <code>TAVILY_API_KEY</code> to the <code>.env</code> file next to the server, then restart it.";
+    b.hidden = !msg; b.innerHTML = msg ? '<span>' + msg + "</span>" : "";
+  }
+  function renderMode() {
+    var p = $("modepill");
+    if (MODE === "server") { var ok = HEALTH && HEALTH.nebius_key && HEALTH.tavily_key; p.className = "badge " + (ok ? "ok" : "warn"); p.innerHTML = "<i></i>" + (ok ? "Connected" : "Keys missing"); }
+    else { p.className = "badge"; p.innerHTML = "<i></i>Demo mode"; }
+    $("connnote").textContent = MODE === "server" ? "Requests need the token shown in the config, if there is one." : "Sample data. Start the server to forge real servers.";
+  }
+  function setView(v) {
+    S.view = v; $("home-pane").hidden = v !== "home"; $("run-pane").hidden = v !== "run";
+    $("hello").textContent = v === "home" ? hello() : (S.name || "Server");
+    $("crumb").textContent = v === "home" ? "Name an API and Nemotron builds, tests and ships an MCP server for it." : "";
+    if (v === "home") $("crumb").hidden = false;
+    setTimeout(function () { fRounds.place(); outSeg.place(); }, 20);
+  }
+  function stepState(g) {
+    var st = S.steps.filter(function (s) { return groupOf(s.key) === g; });
+    if (!st.length) return "";
+    if (st.some(function (s) { return s.state === "run"; })) return "run";
+    var last = st[st.length - 1];
+    if (g === 3) {
+      if (last.state === "done" && /^test/.test(last.key)) return "done";
+      if (S.result && S.result.state !== "run" && !(S.result.ok)) return "fail";
+      return "warn";
+    }
+    if (last.state === "done") return "done";
+    if (S.result && S.result.state === "error") return "fail";
+    return last.state === "warn" ? "warn" : last.state;
+  }
+  var NODE_TICK = '<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 6.3l2.2 2.2 4.6-5"/></svg>';
+  function renderHead() {
+    var running = S.result && S.result.state === "run";
+    $("fh-name").textContent = S.name || "Server";
+    var states = [0, 1, 2, 3, 4].map(stepState), doneN = 0, run = false;
+    [].forEach.call($("stepper").querySelectorAll("li"), function (li, i) {
+      var s = states[i]; li.setAttribute("data-s", s);
+      var node = li.querySelector(".node"); node.innerHTML = s === "done" ? NODE_TICK : "";
+      if (s === "done") doneN++; if (s === "run") run = true;
+    });
+    var fill = Math.min(100, (doneN + (run ? 0.5 : 0)) / 4 * 100), tf = $("trackfill");
+    if (S.result && S.result.state === "done" && S.result.ok) fill = 100;
+    tf.style.width = (fill * 0.999) + "%"; tf.classList.toggle("ok", fill >= 100 && S.result && S.result.ok);
+    var status = "Starting";
+    if (running) { var cur = S.steps.filter(function (s) { return s.state === "run"; }).pop(); status = cur ? cur.name + (cur.tool ? " with " + cur.tool : "") : "Working"; }
+    else if (S.result && S.result.state === "done") status = S.result.ok ? "Live. " + S.result.passed + " of " + S.result.total + " tests passed" : "Not ready. " + S.result.passed + " of " + S.result.total + " tests passed";
+    else if (S.result && S.result.state === "error") status = S.result.message;
+    else if (S.steps.length) status = "Finished";
+    $("fh-status").textContent = status;
+    var ing = $("fIngot"); ing.classList.toggle("instant", S.rest);
+    ing.classList.toggle("forging", !!running);
+    if (!running) ing.style.setProperty("--h", "0"); else ing.style.removeProperty("--h");
+    $("fh-clock").textContent = running ? clock() : (S.result && S.result.secs ? fmtSecs(S.result.secs) : (S.steps.length ? clock() : "00:00"));
+  }
+  function fmtSecs(s) { s = Math.round(s); return ("0" + Math.floor(s / 60)).slice(-2) + ":" + ("0" + (s % 60)).slice(-2); }
+  function clock() { return fmtSecs(Math.max(0, (Date.now() - S.t0) / 1000)); }
+  function renderPipe() {
+    var el = $("pipe");
+    if (!S.steps.length) { el.innerHTML = '<li style="display:block;animation:none"><div class="empty"><b>Getting ready</b>Each step shows up here as it happens.</div></li>'; el.dataset.empty = "1"; $("roundpill").className = "badge"; $("roundpill").textContent = "Ready"; renderHead(); return; }
+    if (el.dataset.empty) { el.innerHTML = ""; delete el.dataset.empty; }
+    S.steps.forEach(function (s) {
+      var li = el.querySelector('[data-k="' + s.key + '"]');
+      if (!li) { li = document.createElement("li"); li.setAttribute("data-k", s.key); if (S.rest) li.style.animation = "none"; li.innerHTML = '<span class="ic"></span><div><div class="nm"></div><div class="dt"></div><span class="tool"></span></div><span class="sec"></span>'; el.appendChild(li); }
+      if (li.getAttribute("data-s") !== s.state) { li.setAttribute("data-s", s.state); li.querySelector(".ic").innerHTML = SVG[s.state] || SVG.wait; }
+      li.querySelector(".nm").textContent = s.name;
+      li.querySelector(".dt").textContent = s.state === "run" ? "Working" : (s.detail || "");
+      li.querySelector(".tool").textContent = s.tool;
+      li.querySelector(".sec").textContent = s.secs != null && s.state !== "run" ? s.secs.toFixed(1) + " s" : "";
+    });
+    var tests = S.steps.filter(function (s) { return /^test/.test(s.key); }).length;
+    var rb = $("roundpill"); rb.className = "badge" + (S.result && S.result.state === "run" ? " run" : "");
+    rb.innerHTML = (S.result && S.result.state === "run" ? "<i></i>" : "") + (tests ? "Round " + tests + " of " + ($("f-rounds").dataset.value || 3) : "Starting");
+    renderHead();
+  }
+  function renderCode() {
+    var names = Object.keys(S.files);
+    $("ftabs").innerHTML = names.map(function (n) { return '<button type="button" class="ftab" aria-pressed="' + (n === S.file) + '" data-f="' + esc(n) + '">' + esc(n) + "</button>"; }).join("");
+    [].forEach.call($("ftabs").querySelectorAll(".ftab"), function (b) { b.addEventListener("click", function () { S.file = b.getAttribute("data-f"); renderCode(); }); });
+    var src = S.files[S.file];
+    $("dlzip").disabled = !names.length; $("copycode").disabled = src == null;
+    if (src == null) { $("code").innerHTML = '<div class="empty"><b>No code yet</b>The server and its tests appear here once Nemotron writes them.</div>'; $("codemeta").textContent = ""; return; }
+    var old = {}; (S.prev[S.file] || "").split("\n").forEach(function (l) { old[l] = 1; });
+    var lines = src.replace(/\n$/, "").split("\n"), ch = 0, an = S.anim && !reduce;
+    $("code").innerHTML = lines.map(function (l, i) {
+      var hit = S.prev[S.file] != null && l.trim() && !old[l]; if (hit) ch++;
+      return '<div class="ln' + (hit ? " hl" : "") + (an ? " rv" : "") + '" style="--i:' + Math.min(i, 45) + '"><i>' + (i + 1) + "</i><span>" + (l ? hlLine(l) : " ") + "</span></div>";
+    }).join("");
+    S.anim = false;
+    $("codemeta").textContent = lines.length + " lines" + (ch ? ", " + ch + " changed by the last fix" : "");
+  }
+  function lastLine(s) { var a = String(s || "").trim().split("\n").filter(Boolean); return (a[a.length - 1] || "").slice(0, 180); }
+  function human(n) { n = String(n).replace(/^test_/, "").replace(/_/g, " "); return n.charAt(0).toUpperCase() + n.slice(1); }
+  function renderTests() {
+    var el = $("tests"), sum = $("tsum");
+    if (!S.tests.length) { sum.innerHTML = ""; el.innerHTML = '<li style="display:block"><div class="empty"><b>No results yet</b>Test results appear after the first round.</div></li>'; return; }
+    var pn = S.tests.filter(function (t) { return t.outcome === "passed"; }).length, tot = S.tests.length, C = 2 * Math.PI * 24;
+    sum.innerHTML = '<svg class="ring" viewBox="0 0 56 56"><circle class="bg" cx="28" cy="28" r="24"/><circle class="fg' + (pn < tot ? " part" : "") + '" cx="28" cy="28" r="24" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '"/></svg><div><b>' + pn + " of " + tot + " passed</b><span>Round " + S.round + "</span></div>";
+    var fg = sum.querySelector(".fg"); requestAnimationFrame(function () { requestAnimationFrame(function () { fg.style.strokeDashoffset = (C * (1 - pn / tot)).toFixed(1); }); });
+    el.innerHTML = S.tests.map(function (t, i) {
+      var pass = t.outcome === "passed", fixed = pass && S.failedBefore[t.name];
+      return '<li style="--i:' + i + '">' + (pass ? SVG.pass : SVG.fail) + '<div><div class="nm">' + esc(human(t.name)) + "</div>" + (pass ? "" : '<div class="why">' + esc(lastLine(t.detail)) + "</div>") + "</div>" +
+        (fixed ? '<span class="badge warn">Fixed in round ' + S.round + "</span>" : pass ? '<span class="badge ok">Passed</span>' : '<span class="badge bad">Failed</span>') + "</li>";
+    }).join("");
+  }
+  function renderLogs() {
+    var el = $("logs");
+    if (!S.logs.length) { el.innerHTML = '<span class="t">Nothing logged yet.</span>'; return; }
+    el.innerHTML = S.logs.map(function (l) { return '<span class="t">' + l.t + "</span>  " + (l.level ? '<span class="' + l.level + '">' + esc(l.text) + "</span>" : esc(l.text)); }).join("\n");
+    el.scrollTop = el.scrollHeight;
+  }
+  function renderResult() {
+    var r = S.result, el = $("result");
+    if (!r) { el.innerHTML = ""; renderHead(); return; }
+    if (r.state === "run") el.innerHTML = '<span class="badge run"><i></i>Forging</span>';
+    else if (r.state === "error") el.innerHTML = '<span class="badge bad"><i></i>Stopped</span>';
+    else if (!r.ok) el.innerHTML = '<span class="badge bad"><i></i>Not ready</span><span>' + r.passed + " of " + r.total + " tests passed</span>";
+    else el.innerHTML = '<svg class="ck" viewBox="0 0 24 24">' + SVG.done.replace(/^<svg[^>]*>|<\/svg>$/g, "") + '</svg><b>Server ready</b><span>' + r.passed + " of " + r.total + " tests passed in " + r.rounds + (r.rounds === 1 ? " round" : " rounds") + "</span>";
+    renderHead();
+  }
+  function renderConnect() {
+    var d = S.deploy;
+    $("url").textContent = d ? d.url : "Your endpoint appears here after deploy.";
+    var cfg = {};
+    if (d) { cfg = { mcpServers: {} }; cfg.mcpServers[d.name || "my-server"] = d.token ? { url: d.url, headers: { Authorization: "Bearer " + d.token } } : { url: d.url }; }
+    $("cfg").textContent = JSON.stringify(cfg, null, 2);
+  }
+  var armed = null, armT = 0;
+  function renderRecent() {
+    var q = ($("srv-q").value || "").trim().toLowerCase(), el = $("recent");
+    var rs = S.runs.filter(function (r) { return !q || r.api_name.toLowerCase().indexOf(q) >= 0; });
+    if (!rs.length) { el.innerHTML = '<p class="empty-s">' + (S.runs.length ? "No servers match." : "Servers you forge show up here.") + "</p>"; return; }
+    el.innerHTML = rs.slice(0, 40).map(function (r, i) {
+      var cls = r.status === "live" ? "ok" : r.status === "running" ? "run" : "warn";
+      var meta = r.status === "live" ? "Live, " + r.passed + " of " + r.total + " tests" : r.status === "running" ? "Running" : r.status === "failed" ? "Not ready, " + r.passed + " of " + r.total : "Stopped";
+      return '<div class="it" role="listitem" tabindex="0" data-id="' + esc(r.id) + '"' + (r.id === S.cur && S.view === "run" ? ' aria-current="true"' : "") + ' style="animation-delay:' + Math.min(i, 8) * 40 + 'ms"><i class="' + cls + '"></i><span><span class="nm">' + esc(r.api_name) + "</span><small>" + meta + ", " + ago(r.created) + '</small></span><button class="del" type="button" aria-label="Delete ' + esc(r.api_name) + '" data-del="' + esc(r.id) + '"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 3h8M4.5 3V2h3v1M3.2 3l.4 7h4.8l.4-7"/></svg></button></div>';
+    }).join("");
+  }
+  $("recent").addEventListener("click", function (e) {
+    var d = e.target.closest("[data-del]");
+    if (d) {
+      e.stopPropagation(); var id = d.getAttribute("data-del");
+      if (armed !== id) { armed = id; d.style.opacity = 1; d.style.width = "auto"; d.style.padding = "0 8px"; d.style.font = "500 12px/1 var(--text)"; d.textContent = "Delete?"; clearTimeout(armT); armT = setTimeout(function () { armed = null; renderRecent(); }, 2600); return; }
+      armed = null; Runs.del(id).then(function () { if (S.cur === id) { newServer(); } return refreshRuns(); }).then(function () { toast("Deleted."); }, function (er) { toast(er.message); }); return;
+    }
+    var it = e.target.closest(".it"); if (it) openRun(it.getAttribute("data-id"));
+  });
+  $("recent").addEventListener("keydown", function (e) { if (e.key === "Enter") { var it = e.target.closest(".it"); if (it && e.target === it) openRun(it.getAttribute("data-id")); } });
+  $("srv-q").addEventListener("input", renderRecent);
+  function renderStats() {
+    var rs = S.runs, live = rs.filter(function (r) { return r.status === "live"; }), tests = rs.reduce(function (a, r) { return a + (r.passed || 0); }, 0);
+    var secs = rs.filter(function (r) { return r.secs > 0; }), avg = secs.length ? Math.round(secs.reduce(function (a, r) { return a + r.secs; }, 0) / secs.length) : 0;
+    var v = { count: rs.length, live: live.length, tests: tests, avg: avg };
+    [].forEach.call($("stats").querySelectorAll("b"), function (b) { countTo(b, v[b.getAttribute("data-k")]); });
+  }
+  function renderAll() { renderMode(); renderBanner(); renderPipe(); renderCode(); renderTests(); renderLogs(); renderResult(); renderConnect(); renderRecent(); if (!$("p-try").hidden) renderTry(); }
+
+  /* ---------- Try it: call the live tools ---------- */
+  var DEMO_TOOLS = [
+    { name: "current_weather", description: "Current temperature and wind for a city.", schema: { properties: { city: { type: "string", title: "City" } }, required: ["city"] } },
+    { name: "forecast_7_day", description: "High, low and rain for the next seven days.", schema: { properties: { city: { type: "string", title: "City" } }, required: ["city"] } }
+  ];
+  function demoCall(tool, args) {
+    var c = args.city || "Paris";
+    if (tool === "current_weather") return { city: c, temp_c: 17.4, wind_kmh: 11.2 };
+    var out = []; for (var i = 0; i < 7; i++) out.push({ date: "2026-10-" + (21 + i), high_c: 18 - (i % 3), low_c: 9 + (i % 4), rain_mm: [0, 0.4, 2.1, 0, 0, 5.2, 0.8][i] });
+    return out;
+  }
+  function renderTry() {
+    var el = $("try");
+    if (!S.deploy) { el.innerHTML = '<div class="empty"><b>Nothing to try yet</b>When a server is live you can call its tools here.</div>'; return; }
+    if (S.toolsFor !== S.cur) {
+      S.toolsFor = S.cur; S.tools = null; S.tryOut = null;
+      el.innerHTML = '<div class="empty"><b>Loading tools</b>Asking the live server what it can do.</div>';
+      var p = MODE === "server" ? api("/api/runs/" + S.cur + "/tools") : Promise.resolve(DEMO_TOOLS);
+      p.then(function (t) { S.tools = t; drawTry(); }, function (e) { S.tools = []; S.toolsErr = e.message; drawTry(); });
+      return;
+    }
+    drawTry();
+  }
+  function drawTry() {
+    var el = $("try"), tools = S.tools || [];
+    if (!tools.length) { el.innerHTML = '<div class="empty"><b>No tools to show</b>' + esc(S.toolsErr || "The server did not list any tools. It may have stopped.") + "</div>"; return; }
+    var sel = S.sel && tools.some(function (t) { return t.name === S.sel; }) ? S.sel : tools[0].name; S.sel = sel;
+    var t = tools.filter(function (x) { return x.name === sel; })[0], props = (t.schema && t.schema.properties) || {}, req = (t.schema && t.schema.required) || [];
+    el.innerHTML = '<div class="try-row"><span class="lbl">Tool</span><span class="chipsel"><select id="try-sel" aria-label="Tool">' + tools.map(function (x) { return '<option value="' + esc(x.name) + '"' + (x.name === sel ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + "</select></span></div>" +
+      '<p class="try-desc">' + esc(t.description || "No description.") + "</p>" +
+      '<div class="try-args">' + Object.keys(props).map(function (k) { var p = props[k]; return '<div class="sub"><label for="ta-' + esc(k) + '">' + esc(k) + (req.indexOf(k) >= 0 ? " (required)" : "") + " " + esc(p.type || "") + '</label><input id="ta-' + esc(k) + '" data-k="' + esc(k) + '" data-t="' + esc(p.type || "string") + '" placeholder="' + esc(p.title || k) + '" value="' + esc(S.tryArgs && S.tryArgs[k] != null ? S.tryArgs[k] : (p.type === "string" && k.indexOf("city") >= 0 ? "Paris" : (p.default != null ? p.default : ""))) + '"></div>'; }).join("") + "</div>" +
+      '<div class="try-row"><button class="pill-btn sm" id="try-go" type="button">Run tool</button><span class="lbl" id="try-note">' + (MODE === "demo" ? "Sample output in demo mode." : "Runs against the live server.") + "</span></div>" +
+      (S.tryOut ? '<div class="try-out"><div class="h"><span>' + esc(S.tryOut.title) + "</span><span>" + esc(S.tryOut.ms) + '</span></div><pre>' + esc(S.tryOut.text) + "</pre></div>" : "");
+    $("try-sel").addEventListener("change", function () { S.sel = this.value; S.tryOut = null; S.tryArgs = null; drawTry(); });
+    $("try-go").addEventListener("click", function () {
+      var args = {}, bad = "";
+      [].forEach.call(el.querySelectorAll("[data-k]"), function (i) {
+        var v = i.value.trim(), ty = i.getAttribute("data-t"), k = i.getAttribute("data-k");
+        if (v === "") { if (req.indexOf(k) >= 0) bad = k + " is required."; return; }
+        if (ty === "integer" || ty === "number") { var n = Number(v); if (isNaN(n)) bad = k + " must be a number."; else args[k] = n; }
+        else if (ty === "boolean") args[k] = v === "true";
+        else if (ty === "array" || ty === "object") { try { args[k] = JSON.parse(v); } catch (e) { bad = k + " must be valid JSON."; } }
+        else args[k] = v;
+      });
+      S.tryArgs = args; if (bad) { toast(bad); return; }
+      var b = $("try-go"); b.disabled = true; b.textContent = "Running"; var t0 = performance.now();
+      var p = MODE === "server" ? api("/api/runs/" + S.cur + "/call", { method: "POST", body: { tool: sel, args: args } })
+        : new Promise(function (ok) { setTimeout(function () { ok({ ok: true, text: JSON.stringify(demoCall(sel, args), null, 2) }); }, reduce ? 0 : 650); });
+      p.then(function (r) { S.tryOut = { title: (r.ok ? "Result from " : "Error from ") + sel, text: r.text, ms: Math.round(performance.now() - t0) + " ms" }; },
+        function (e) { S.tryOut = { title: "Could not call " + sel, text: e.message, ms: "" }; }).then(drawTry);
+    });
+  }
+
+  /* ---------- events: the live API and the sample both feed this ---------- */
+  function applyEvent(ev) {
+    if (ev.type === "run") { S.cur = ev.id; return; }
+    S.events.push(ev);
+    if (ev.type === "step") {
+      var s = S.steps.filter(function (x) { return x.key === ev.key; })[0];
+      if (!s) { s = { key: ev.key }; S.steps.push(s); }
+      s.name = ev.name; s.tool = ev.tool; s.state = ev.state; s.detail = ev.detail; s.secs = ev.secs; renderPipe();
+    } else if (ev.type === "log") { S.logs.push({ t: S.rest ? "" : clock(), level: ev.level || "", text: ev.text }); if (!S.rest) renderLogs();
+    } else if (ev.type === "code") {
+      S.prev = (ev.changed && ev.changed.length) ? S.files : {}; S.files = ev.files; if (!S.files[S.file]) S.file = "server.py"; S.anim = !S.rest; renderCode();
+    } else if (ev.type === "tests") {
+      S.tests.forEach(function (t) { if (t.outcome !== "passed") S.failedBefore[t.name] = 1; });
+      S.round = ev.round; S.tests = ev.tests; renderTests();
+    } else if (ev.type === "done") {
+      var sm = ev.summary || {};
+      S.result = { state: "done", ok: ev.ok, passed: sm.passed, total: sm.total, rounds: sm.rounds || S.round, secs: sm.secs };
+      if (ev.ok) S.deploy = { url: ev.url, token: ev.token, name: ev.server_name };
+      renderResult(); renderConnect(); renderPipe();
+    } else if (ev.type === "error") { S.result = { state: "error", message: ev.message }; renderResult(); renderPipe(); }
+  }
+  function resetRun() {
+    S.steps = []; S.files = {}; S.prev = {}; S.tests = []; S.round = 0; S.failedBefore = {}; S.logs = []; S.result = null; S.deploy = null; S.events = [];
+    S.t0 = Date.now(); S.file = "server.py"; S.tools = null; S.toolsFor = null; S.tryOut = null; S.tryArgs = null; S.sel = null; $("pipe").innerHTML = "";
+  }
+  function stopTimers() { S.timers.forEach(clearTimeout); S.timers = []; clearInterval(S.clockT); S.clockT = 0; }
+  function startClock() { clearInterval(S.clockT); S.clockT = setInterval(function () { if (S.result && S.result.state === "run") $("fh-clock").textContent = clock(); }, 500); }
+
+  /* ---------- open a saved run (replays its events without the show) ---------- */
+  function openRun(id) {
+    if (S.busy) { toast("A run is in progress. Stop it first."); return; }
+    closeMenu();
+    Runs.get(id).then(function (r) {
+      stopTimers(); resetRun(); S.rest = true; S.cur = r.id; S.name = r.api_name;
+      (r.events || []).forEach(applyEvent);
+      if (!S.result && r.status === "running") S.result = null;
+      if (!S.result && r.status === "stopped") S.result = { state: "error", message: "This run was stopped." };
+      if (r.files && Object.keys(S.files).length === 0) S.files = r.files;
+      var b = r.brief || {}; $("f-api").value = r.api_name; $("f-url").value = b.docs_url || ""; $("f-tools").value = b.tools || "";
+      S.rest = false; setView("run"); renderAll(); outSeg.set("p-code"); renderRecent();
+    }, function (e) { toast(e.message || "Could not open that server."); });
+  }
+  function newServer() {
+    if (S.busy) { toast("A run is in progress. Stop it first."); return; }
+    stopTimers(); resetRun(); S.cur = null; S.name = ""; $("f-api").value = ""; $("f-url").value = ""; $("f-tools").value = "";
+    setView("home"); renderAll(); closeMenu(); $("f-api").focus();
+  }
+  $("newbtn").addEventListener("click", newServer);
+
+  /* ---------- sample run (demo mode) ---------- */
+    var V2 = [
+    'from mcp.server.fastmcp import FastMCP', 'import httpx', '', 'mcp = FastMCP("open-meteo")',
+    'GEO = "https://geocoding-api.open-meteo.com/v1/search"', 'API = "https://api.open-meteo.com/v1/forecast"', '', '',
+    'async def _locate(city: str) -> tuple[float, float]:', '    async with httpx.AsyncClient(timeout=10) as http:',
+    '        r = await http.get(GEO, params={"name": city, "count": 1})', '        r.raise_for_status()',
+    '        hits = r.json().get("results") or []', '    if not hits:', '        raise ValueError(f"No place found for {city!r}")',
+    '    return hits[0]["latitude"], hits[0]["longitude"]', '', '', '@mcp.tool()', 'async def current_weather(city: str) -> dict:',
+    '    """Current temperature and wind for a city."""', '    lat, lon = await _locate(city)', '    async with httpx.AsyncClient(timeout=10) as http:',
+    '        r = await http.get(API, params={', '            "latitude": lat, "longitude": lon,', '            "current": "temperature_2m,wind_speed_10m"})',
+    '        r.raise_for_status()', '    now = r.json()["current"]', '    return {"city": city, "temp_c": now["temperature_2m"],', '            "wind_kmh": now["wind_speed_10m"]}', '', '',
+    '@mcp.tool()', 'async def forecast_7_day(city: str) -> list[dict]:', '    """High, low and rain for the next seven days."""', '    lat, lon = await _locate(city)',
+    '    async with httpx.AsyncClient(timeout=10) as http:', '        r = await http.get(API, params={', '            "latitude": lat, "longitude": lon, "forecast_days": 7,',
+    '            "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum"})', '        r.raise_for_status()', '    d = r.json()["daily"]',
+    '    return [{"date": d["time"][i],', '             "high_c": d["temperature_2m_max"][i],', '             "low_c": d["temperature_2m_min"][i],',
+    '             "rain_mm": d["precipitation_sum"][i]}', '            for i in range(len(d["time"]))]', '', '',
+    'if __name__ == "__main__":', '    mcp.run(transport="streamable-http")'
+  ];
+  var V1 = V2.filter(function (l) { return l !== "    if not hits:" && l.indexOf("No place found") < 0; }).map(function (l) { return l.replace('d["precipitation_sum"][i]}', 'd["rain_sum"][i]}'); });
+  var TPY = 'import httpx, pytest, respx\nfrom server import current_weather, forecast_7_day, mcp\n\n\nasync def test_server_lists_both_tools():\n    names = sorted(t.name for t in await mcp.list_tools())\n    assert names == ["current_weather", "forecast_7_day"]\n\n\n@respx.mock\nasync def test_current_weather_unknown_city_has_clear_error():\n    respx.get(GEO).mock(return_value=httpx.Response(200, json={}))\n    with pytest.raises(ValueError, match="No place found"):\n        await current_weather("Nowhere")\n';
+  function T(n, ok, d) { return { name: n, outcome: ok ? "passed" : "failed", detail: d || "", secs: 0.1 }; }
+  var T1 = [T("test_server_lists_both_tools", 1), T("test_current_weather_returns_temperature", 1), T("test_current_weather_unknown_city_has_clear_error", 0, "KeyError: 'results'"), T("test_forecast_returns_seven_days", 1), T("test_forecast_has_high_low_and_rain", 0, "KeyError: 'rain_sum'"), T("test_slow_call_times_out_cleanly", 1)];
+  var T2 = T1.map(function (t) { return T(t.name, 1); });
+  function st(k, n, tool, s, d, sec) { return { type: "step", key: k, name: n, tool: tool, state: s, detail: d, secs: sec }; }
+  function lg(t, l) { return { type: "log", text: t, level: l || "" }; }
+  var SAMPLE = [
+    [200, lg("Brief received: Open-Meteo weather")],
+    [100, st("docs", "Read the docs", "Tavily", "run")], [800, st("docs", "Read the docs", "Tavily", "done", "3 pages on open-meteo.com", 4.1)], [0, lg("tavily  3 pages read, 11 endpoints found", "ok")],
+    [100, st("plan", "Plan the tools", "Nemotron 3 Super", "run")], [700, st("plan", "Plan the tools", "Nemotron 3 Super", "done", "current_weather and forecast_7_day", 3.2)],
+    [100, st("write", "Write the server", "Nemotron 3 Super", "run")], [1000, st("write", "Write the server", "Nemotron 3 Super", "done", V1.length + " lines of Python and 6 tests", 9.8)],
+    [0, { type: "code", files: { "server.py": V1.join("\n") + "\n", "test_server.py": TPY }, changed: [] }], [0, lg("write  server.py " + V1.length + " lines", "ok")],
+    [100, st("test1", "Run tests, round 1", "Serverless Job", "run")], [1200, st("test1", "Run tests, round 1", "Serverless Job", "warn", "4 of 6 passed", 11.5)],
+    [0, { type: "tests", round: 1, tests: T1 }], [0, lg("tests  round 1: 4 of 6 passed", "wn")], [0, lg("FAIL test_current_weather_unknown_city_has_clear_error  KeyError: 'results'", "bad")], [0, lg("FAIL test_forecast_has_high_low_and_rain  KeyError: 'rain_sum'", "bad")],
+    [100, st("fix1", "Fix the failures", "Nemotron 3 Nano", "run")], [1200, st("fix1", "Fix the failures", "Nemotron 3 Nano", "done", "Patched server.py", 14.2)],
+    [0, { type: "code", files: { "server.py": V2.join("\n") + "\n", "test_server.py": TPY }, changed: ["server.py"] }], [0, lg("fix  patched server.py")],
+    [100, st("test2", "Run tests, round 2", "Serverless Job", "run")], [1000, st("test2", "Run tests, round 2", "Serverless Job", "done", "6 of 6 passed", 9.4)],
+    [0, { type: "tests", round: 2, tests: T2 }], [0, lg("tests  round 2: 6 of 6 passed", "ok")],
+    [100, st("deploy", "Deploy", "Serverless Endpoint", "run")], [800, st("deploy", "Deploy", "Serverless Endpoint", "done", "Live and answering tool calls", 5.6)],
+    [0, lg("deploy  https://open-meteo.endpoints.example/mcp", "ok")],
+    [100, { type: "done", ok: true, url: "https://open-meteo.endpoints.example/mcp", token: null, server_name: "open-meteo", summary: { passed: 6, total: 6, rounds: 2, secs: 48 } }]
+  ];
+  function playSample(done) {
+    var i = 0; S.timers = [];
+    (function next() { if (i >= SAMPLE.length) { done(); return; } var s = SAMPLE[i++]; S.timers.push(setTimeout(function () { applyEvent(s[1]); next(); }, reduce ? 0 : s[0])); })();
+  }
+
+  /* ---------- live run: POST, then read the event stream ---------- */
+  function liveRun(body, done) {
+    S.ctl = new AbortController();
+    return fetch("/api/forge", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: S.ctl.signal }).then(function (res) {
+      if (res.status === 401) { throw Object.assign(new Error("Your session ended. Sign in again."), { auth: true }); }
+      if (!res.ok) return res.json().catch(function () { return {}; }).then(function (d) { throw new Error(typeof d.detail === "string" && d.detail ? d.detail : "The server answered " + res.status + "."); });
+      var rd = res.body.getReader(), dec = new TextDecoder(), buf = "";
+      function pump() {
+        return rd.read().then(function (c) {
+          if (c.done) return;
+          buf += dec.decode(c.value, { stream: true });
+          var parts = buf.split("\n\n"); buf = parts.pop();
+          parts.forEach(function (p) { if (p.indexOf("data: ") === 0) { try { applyEvent(JSON.parse(p.slice(6))); } catch (e) { } } });
+          return pump();
+        });
+      }
+      return pump().then(function () { if (S.result && S.result.state === "run") applyEvent({ type: "error", message: "The stream ended early. Check the server log." }); });
+    }).catch(function (e) {
+      if (e.name === "AbortError") { applyEvent({ type: "error", message: "You stopped this run." }); return; }
+      if (e.auth) { ME = null; toast(e.message); go("signin"); return; }
+      applyEvent({ type: "error", message: e.message || "Could not reach the server." });
+    }).then(done);
+  }
+
+  /* ---------- composer ---------- */
+  function setBusy(b) {
+    S.busy = b; $("go").disabled = b; $("go").textContent = b ? "Forging" : "Forge server"; $("stop").hidden = !b;
+    [].forEach.call($("brief").querySelectorAll("input,select"), function (i) { i.disabled = b; });
+  }
+  function finishRun(name) {
+    setBusy(false); clearInterval(S.clockT); S.clockT = 0; S.ctl = null; renderHead();
+    if (S.result && S.result.ok) toast("Server ready. " + S.result.passed + " of " + S.result.total + " tests passed.");
+    if (MODE === "demo" && S.result && S.result.state === "done") {
+      Runs.saveDemo({ id: "d" + Date.now(), api_name: name, created: Date.now() / 1000, status: S.result.ok ? "live" : "failed", passed: S.result.passed, total: S.result.total, secs: S.result.secs,
+        url: S.deploy ? S.deploy.url : null, files: S.files, events: S.events.slice(), brief: { api_name: name, docs_url: $("f-url").value, tools: $("f-tools").value } });
+    }
+    refreshRuns();
+  }
+  $("brief").addEventListener("submit", function (e) {
+    e.preventDefault(); if (S.busy) return;
+    var name = $("f-api").value.trim();
+    if (name.length < 2) { toast("Name the API first."); $("f-api").focus(); return; }
+    if (MODE === "server" && HEALTH && !(HEALTH.nebius_key && HEALTH.tavily_key)) { toast("Add the keys to the server's .env file first."); return; }
+    var p = getPrefs();
+    stopTimers(); resetRun(); S.name = name; S.cur = null; S.result = { state: "run" }; setView("run"); renderAll(); outSeg.set("p-code"); setBusy(true); startClock();
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    if (MODE === "server") {
+      liveRun({ api_name: name, docs_url: $("f-url").value.trim(), tools: $("f-tools").value.trim(), writer_hint: $("f-model").value, max_rounds: parseInt($("f-rounds").dataset.value, 10) || 3, runner: p.runner || "" },
+        function () { finishRun(name); });
+    } else playSample(function () { finishRun(name); });
+  });
+  $("stop").addEventListener("click", function () {
+    if (S.ctl) S.ctl.abort();
+    else { stopTimers(); applyEvent({ type: "error", message: "You stopped this run." }); finishRun($("f-api").value.trim()); }
+  });
+  $("f-model").addEventListener("change", function () { var p = Object.assign({}, getPrefs(), { model: this.value }); Auth.save(p).catch(function () { }); });
+
+  /* ---------- copy, download, toast ---------- */
+  var toastEl = $("toast"), tt;
+  function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tt); tt = setTimeout(function () { toastEl.classList.remove("on"); }, 2600); }
+  function copy(text, ok, node) {
+    function fallback() { try { var r = document.createRange(); r.selectNodeContents(node); var s = getSelection(); s.removeAllRanges(); s.addRange(r); toast("Selected. Press Ctrl+C to copy."); } catch (e) { } }
+    try { navigator.clipboard.writeText(text).then(function () { toast(ok); }, fallback); } catch (e) { fallback(); }
+  }
+  $("copycode").addEventListener("click", function () { if (S.files[S.file] != null) copy(S.files[S.file], "Copied " + S.file, $("code")); else toast("No code yet."); });
+  $("copyurl").addEventListener("click", function () { if (S.deploy) copy(S.deploy.url, "Copied endpoint", $("url")); else toast("No endpoint yet."); });
+  $("copycfg").addEventListener("click", function () { if (S.deploy) copy($("cfg").textContent, "Copied config", $("cfg")); else toast("No config yet."); });
+  $("dlzip").addEventListener("click", function () {
+    var a = document.createElement("a");
+    if (MODE === "server" && S.cur) { a.href = "/api/runs/" + S.cur + "/zip"; a.download = ""; }
+    else { if (S.files[S.file] == null) return; a.href = URL.createObjectURL(new Blob([S.files[S.file]], { type: "text/plain" })); a.download = S.file; }
+    document.body.appendChild(a); a.click(); a.remove(); toast(MODE === "server" ? "Downloading zip." : "Downloaded " + S.file + ".");
+  });
+
+  /* ---------- mobile sidebar ---------- */
+  function closeMenu() { $("side").classList.remove("open"); $("scrim").hidden = true; $("menubtn").setAttribute("aria-expanded", "false"); }
+  $("menubtn").addEventListener("click", function () { var o = !$("side").classList.contains("open"); $("side").classList.toggle("open", o); $("scrim").hidden = !o; this.setAttribute("aria-expanded", String(o)); });
+  $("scrim").addEventListener("click", closeMenu);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeMenu(); });
+
+  /* ---------- open the dashboard ---------- */
+  function appOpen() {
+    var p = getPrefs(), name = (ME && ME.name) || "there";
+    $("avatar").textContent = (name.charAt(0) || "?").toUpperCase(); $("uname").textContent = name; $("uemail").textContent = ME ? ME.email : "";
+    fRounds.set(p.rounds || "3", true); $("f-model").value = p.model || "";
+    outSeg.set("p-code");
+    if (!S.busy) { stopTimers(); resetRun(); S.cur = null; S.name = ""; setView("home"); }
+    renderAll(); S.runs = []; renderRecent(); refreshRuns();
+    setTimeout(function () { fRounds.place(); outSeg.place(); }, 30);
+  }
+
+
+  syncNav();
+  route();
+  boot();
+})();
+
+</script>
+</body>

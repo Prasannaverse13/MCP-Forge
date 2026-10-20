@@ -1,0 +1,940 @@
+<title>MCP Forge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ---------- Landing ---------- */
+.hero {
+  position: relative;
+  height: clamp(580px, 84vh, 800px);
+  background: #0b1730;
+  overflow: hidden;
+  color: var(--hero-fg);
+}
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pillnav {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top, 0px) * 0);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 50px;
+  border: 1px solid var(--glass-line);
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-nav);
+  color: var(--hero-fg);
+  max-width: calc(100% - 32px);
+  white-space: nowrap;
+}
+.pillnav a.lnk { font: 500 15px/1 var(--sans); text-decoration: none; color: var(--hero-fg); opacity: 0.9; }
+.pillnav a.lnk:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
+.pillnav .btn { color: var(--hero-fg); border-color: rgba(255, 255, 255, 0.55); padding: 7px 12px; }
+.pillnav .btn:hover { background: rgba(255, 255, 255, 0.12); }
+.pillnav .links { display: flex; gap: 20px; }
+
+.hero-card {
+  position: absolute;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: 24px;
+  width: min(640px, calc(100% - 32px));
+  padding: 32px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 1264px) { .hero-card { left: calc((100% - 1200px) / 2 + 16px); } }
+.hero-card h1 { font-size: clamp(36px, 5.2vw, 54px); color: var(--hero-fg); letter-spacing: -0.02em; }
+.hero-card p { color: var(--hero-muted); font-size: 16px; max-width: 52ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.hero-card .btn-primary { border-color: #6dbbe3; color: #ffffff; }
+.hero-card .btn-primary:hover { background: rgba(65, 161, 207, 0.22); }
+.hero-card .btn-ghost { border-color: transparent; color: var(--hero-fg); padding-inline: 8px; }
+.hero-card .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+.hero-tag { font: 500 13px/1.3 var(--sans); color: var(--hero-muted); letter-spacing: 0.02em; }
+
+.band { padding-block: 96px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.split > * { min-width: 0; }
+.lead { display: grid; gap: 20px; }
+.lead h2 { font-size: clamp(34px, 4.2vw, 48px); }
+.lead p { font-size: 16px; color: var(--ash); max-width: 46ch; }
+.steps { display: grid; gap: 0; margin: 8px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--mist); }
+.steps li { display: grid; grid-template-columns: 148px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--mist); font-size: 15px; }
+.steps b { font-weight: 500; color: var(--graphite); }
+.steps span { color: var(--ash); }
+
+.diagram {
+  border-radius: 16px;
+  background: var(--paper);
+  border: 1px solid var(--mist);
+  box-shadow: var(--shadow-soft);
+  padding: 12px;
+}
+.diagram svg { display: block; width: 100%; height: auto; color: var(--twilight); }
+.diagram .node { fill: var(--paper); stroke: var(--twilight); stroke-width: 1.2; }
+.diagram .node.ship { fill: var(--signal-wash); stroke: var(--signal); }
+.diagram .t1 { font: 500 14px var(--sans); fill: var(--graphite); letter-spacing: -0.01em; }
+.diagram .t2 { font: 400 11px var(--mono); fill: var(--ash); }
+.diagram .lbl { font: 500 11px var(--mono); fill: var(--ash); }
+.diagram .lbl.fail { fill: var(--bad); }
+.diagram .lbl.pass { fill: var(--ok); }
+.diagram path.ln { fill: none; stroke: var(--twilight); stroke-width: 1.2; }
+.diagram path.ln.fail { stroke: var(--bad); stroke-dasharray: 4 4; }
+.diagram path.ln.pass { stroke: var(--ok); }
+.diagram .cap { font: 400 13px var(--sans); color: var(--ash); padding: 12px 8px 4px; }
+
+.blue-card {
+  background: var(--cerulean);
+  color: var(--on-cerulean);
+  border-radius: 24px;
+  padding: clamp(32px, 7vw, 96px);
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: end;
+  box-shadow: var(--shadow-card);
+}
+.blue-card > * { min-width: 0; }
+.blue-card h2 { color: var(--on-cerulean); font-size: clamp(32px, 4vw, 48px); }
+.blue-card .stack { display: grid; gap: 0; border-top: 1px solid var(--cerulean-line); }
+.blue-card .stack div { display: grid; gap: 4px; padding: 16px 0; border-bottom: 1px solid var(--cerulean-line); }
+.blue-card .stack b { font: 500 15px/1.3 var(--sans); color: var(--on-cerulean); }
+.blue-card .stack span { font-size: 14px; color: var(--on-cerulean-muted); }
+
+.foot { background: var(--paper); border-top: 1px solid var(--mist); padding-block: 80px 48px; }
+.foot h2 { font-size: clamp(34px, 5vw, 54px); max-width: 18ch; }
+.foot-row { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; align-items: end; margin-top: 56px; font-size: 13px; color: var(--ash); }
+.foot-row nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.foot-row a { text-decoration: none; color: var(--charcoal); font-weight: 500; }
+.foot-row a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- App ---------- */
+.appbar { border-bottom: 1px solid var(--mist); background: var(--canvas); }
+.appbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+.appbar .left, .appbar .right { display: flex; align-items: center; gap: 16px; }
+.appbar a.lnk { font: 500 15px/1 var(--sans); text-decoration: none; color: var(--charcoal); }
+.appbar a.lnk:hover { text-decoration: underline; text-underline-offset: 4px; }
+.sep { width: 1px; height: 18px; background: var(--mist); }
+
+.app-main { padding-block: 32px 72px; display: grid; gap: 24px; }
+.app-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.app-head h1 { font-size: clamp(30px, 3.6vw, 40px); }
+.app-head p { color: var(--ash); font-size: 15px; margin-top: 8px; }
+.grid3 { display: grid; grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start; }
+.grid3 > * { min-width: 0; }
+.card { background: var(--paper); border: 1px solid var(--mist); border-radius: 12px; box-shadow: var(--shadow-card); }
+.card-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--mist); }
+.card-h h3 { font: 500 15px/1.3 var(--sans); letter-spacing: -0.01em; color: var(--graphite); }
+.card-b { padding: 16px; }
+
+.form { display: grid; gap: 16px; }
+.form .btn { width: 100%; padding-block: 12px; }
+.recent { display: grid; gap: 0; margin-top: 4px; }
+.recent button {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  text-align: left; background: none; border: 0; border-top: 1px solid var(--mist);
+  padding: 11px 0; font: 500 14px/1.3 var(--sans); color: var(--charcoal); cursor: pointer; letter-spacing: -0.01em;
+}
+.recent button:hover { color: var(--graphite); background: var(--linen); }
+.recent small { display: block; font: 400 12px/1.3 var(--mono); color: var(--ash); margin-top: 3px; }
+
+.result { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.result .big { font: 400 24px/1.1 var(--serif); letter-spacing: -0.02em; color: var(--graphite); }
+.result .meta { font: 400 13px/1.3 var(--sans); color: var(--ash); }
+
+.pipe { list-style: none; margin: 0; padding: 4px 16px 8px; display: grid; }
+.pipe li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; padding: 14px 0; border-top: 1px solid var(--mist); position: relative; }
+.pipe li:first-child { border-top: 0; }
+.pipe .ic { width: 22px; height: 22px; display: grid; place-items: center; margin-top: 1px; color: var(--fog); }
+.pipe .ic svg { width: 18px; height: 18px; }
+.pipe li[data-s="done"] .ic { color: var(--ok); }
+.pipe li[data-s="warn"] .ic { color: var(--warn); }
+.pipe li[data-s="run"] .ic { color: var(--signal-ink); }
+.pipe li[data-s="run"] .ic svg { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pipe .nm { font: 500 15px/1.3 var(--sans); color: var(--graphite); letter-spacing: -0.01em; }
+.pipe li[data-s="wait"] .nm { color: var(--ash); }
+.pipe .dt { font-size: 13px; color: var(--ash); margin-top: 3px; min-height: 17px; }
+.pipe .tool { display: inline-block; margin-top: 8px; font: 500 11px/1 var(--mono); color: var(--charcoal); background: var(--linen); border: 1px solid var(--mist); border-radius: 4px; padding: 4px 6px; }
+.pipe .sec { font: 400 12px/1.3 var(--mono); color: var(--ash); padding-top: 3px; }
+
+.tabs { display: flex; gap: 4px; padding: 8px 12px 0; border-bottom: 1px solid var(--mist); overflow-x: auto; }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px 10px; font: 500 14px/1 var(--sans); color: var(--ash); cursor: pointer; letter-spacing: -0.01em; white-space: nowrap; }
+.tab:hover { color: var(--graphite); }
+.tab[aria-selected="true"] { color: var(--graphite); border-bottom-color: var(--signal); }
+.panel { padding: 0; }
+.codebox { background: var(--code-bg); border-radius: 0 0 12px 12px; overflow: auto; max-height: 560px; }
+.codebox pre { margin: 0; padding: 14px 0; font: 400 12.5px/1.65 var(--mono); letter-spacing: 0; color: var(--charcoal); min-width: max-content; }
+.codebox .ln { display: grid; grid-template-columns: 44px 1fr; }
+.codebox .ln i { font-style: normal; text-align: right; padding-right: 14px; color: var(--fog); user-select: none; }
+.codebox .ln.hl { background: var(--warn-bg); }
+.k { color: var(--c-kw); } .s { color: var(--c-str); } .f { color: var(--c-fn); } .c { color: var(--c-com); font-style: italic; } .n { color: var(--c-num); } .d { color: var(--c-dec); }
+.codebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 10px 16px; border-bottom: 1px solid var(--mist); font: 400 12px/1.3 var(--mono); color: var(--ash); }
+
+.tests { list-style: none; margin: 0; padding: 0; }
+.tests li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--mist); align-items: start; }
+.tests li:first-child { border-top: 0; }
+.tests .nm { font: 500 14px/1.35 var(--sans); color: var(--graphite); }
+.tests .why { font-size: 13px; color: var(--ash); margin-top: 3px; }
+.tests svg { width: 18px; height: 18px; color: var(--ok); margin-top: 1px; }
+.logs { margin: 0; padding: 14px 16px; background: var(--code-bg); border-radius: 0 0 12px 12px; font: 400 12px/1.7 var(--mono); letter-spacing: 0; color: var(--charcoal); max-height: 560px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+.logs .t { color: var(--fog); }
+.logs .ok { color: var(--ok); } .logs .bad { color: var(--bad); } .logs .wn { color: var(--warn); }
+.connect { display: grid; gap: 16px; padding: 16px; }
+.connect .url { display: flex; align-items: center; gap: 10px; background: var(--linen); border-bottom: 1px solid var(--charcoal); padding: 10px; font: 400 13px/1.4 var(--mono); letter-spacing: 0; color: var(--charcoal); }
+.connect .url span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.connect pre { margin: 0; background: var(--code-bg); border-radius: 8px; padding: 14px; font: 400 12.5px/1.6 var(--mono); letter-spacing: 0; overflow: auto; color: var(--charcoal); }
+.note { font-size: 13px; color: var(--ash); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--dusk); color: var(--on-dusk); font: 500 14px/1 var(--sans); padding: 11px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 20; }
+.toast.on { opacity: 1; }
+
+
+@media (max-width: 1060px) { .grid3 { grid-template-columns: 300px minmax(0, 1fr); } .grid3 > :nth-child(3) { grid-column: 1 / -1; } }
+@media (max-width: 860px) {
+  .split, .blue-card { grid-template-columns: 1fr; gap: 40px; }
+  .band { padding-block: 64px; }
+  .pillnav .links { display: none; }
+  .steps li { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (max-width: 720px) { .appbar .left .sep, .appbar .left .lnk { display: none; } .appbar .brand { white-space: nowrap; } .appbar .right { gap: 10px; } .grid3 { grid-template-columns: 1fr; } .hero-card { padding: 24px; bottom: 16px; } .appbar .right .pill { display: none; } }
+/* ---------- Sign in and onboarding ---------- */
+.auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100vh; min-height: 100dvh; }
+.auth-art {
+  background: var(--cerulean);
+  color: var(--on-cerulean);
+  padding: 32px clamp(24px, 5vw, 64px) clamp(40px, 8vh, 96px) max(clamp(24px, 5vw, 64px), env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; justify-content: space-between; gap: 48px;
+  position: relative; overflow: hidden;
+}
+.auth-art::after {
+  content: ""; position: absolute; right: -90px; top: 18%; width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 68%);
+  pointer-events: none;
+}
+.auth-art .brand { color: var(--on-cerulean); }
+.auth-quote { display: grid; gap: 16px; position: relative; z-index: 1; }
+.auth-quote h2 { color: var(--on-cerulean); font-size: clamp(36px, 4.6vw, 54px); }
+.auth-quote p { color: var(--on-cerulean-muted); max-width: 40ch; }
+.auth-pane { display: grid; place-items: center; padding: 48px var(--gutter-r) 48px clamp(16px, 4vw, 48px); }
+.auth-form { display: grid; gap: 18px; width: min(400px, 100%); }
+.auth-form h1, .ob h1 { font-size: clamp(34px, 4vw, 44px); }
+.auth-form .btn { width: 100%; padding-block: 12px; }
+.note { font-size: 13px; color: var(--ash); line-height: 1.5; }
+.err { margin: 0; font-size: 13px; color: var(--bad); }
+.lnk-back { font: 500 14px/1 var(--sans); color: var(--charcoal); text-underline-offset: 4px; }
+.ob { max-width: 640px; padding-block: 40px 72px; display: grid; gap: 28px; }
+.segs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.segs i { height: 3px; border-radius: 3px; background: var(--mist); }
+.segs i.on { background: var(--signal); }
+.ob-step { display: grid; gap: 20px; }
+.ob-step > .field > span { font: 500 13px/1.3 var(--sans); color: var(--ash); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 14px/1 var(--sans); letter-spacing: -0.01em; color: var(--charcoal); background: transparent; border: 1px solid var(--mist); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+.chip:hover { background: var(--linen); }
+.chip[aria-pressed="true"] { border-color: var(--signal); color: var(--signal-ink); background: var(--signal-wash); }
+.ob-actions { display: flex; justify-content: space-between; gap: 12px; }
+.ob-actions .btn { padding-inline: 20px; }
+.ob-actions #ob-next { margin-left: auto; }
+
+/* ---------- Dashboard additions ---------- */
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--dusk); color: var(--on-dusk); display: grid; place-items: center; font: 600 13px/1 var(--sans); }
+.ftabs { display: flex; gap: 4px; min-width: 0; overflow-x: auto; }
+#codemeta { white-space: nowrap; }
+.ftab { font: 500 12px/1 var(--mono); letter-spacing: 0; color: var(--ash); background: none; border: 1px solid transparent; border-radius: 6px; padding: 6px 8px; cursor: pointer; white-space: nowrap; }
+.ftab:hover { color: var(--graphite); }
+.ftab[aria-pressed="true"] { color: var(--graphite); border-color: var(--mist); background: var(--paper); }
+.empty { padding: 28px 16px; display: grid; gap: 6px; color: var(--ash); font-size: 14px; }
+.empty b { font: 500 15px/1.3 var(--sans); color: var(--graphite); }
+.recent .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--mist); padding: 11px 0; font: 500 14px/1.3 var(--sans); color: var(--charcoal); letter-spacing: -0.01em; }
+.recent .row small { display: block; font: 400 12px/1.3 var(--mono); color: var(--ash); margin-top: 3px; letter-spacing: 0; overflow-wrap: anywhere; }
+.recent .row > span:first-child { min-width: 0; }
+.right .btn-sm { border-color: var(--mist); color: var(--charcoal); }
+@media (max-width: 860px) {
+  .auth { grid-template-columns: 1fr; }
+  .auth-art { padding-block: 24px 40px; gap: 32px; }
+  .auth-pane { padding-block: 40px; }
+}
+</style>
+
+<body data-v="home">
+
+<!-- ================= LANDING ================= -->
+<main data-view="home" id="top">
+  <section class="hero" aria-label="Introduction">
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <nav class="pillnav" aria-label="Primary">
+      <a class="brand" href="#home" style="color:var(--hero-fg)">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1l2.2 6.8L19 10l-6.8 2.2L10 19l-2.2-6.8L1 10l6.8-2.2z" fill="currentColor"/></svg>
+        MCP Forge
+      </a>
+      <span class="links"><a class="lnk" href="#process">Process</a><a class="lnk" href="#stack">Stack</a></span>
+      <a class="btn" id="nav-auth" href="#signin">Sign in</a>
+    </nav>
+    <div class="hero-card">
+      <span class="hero-tag">Nebius × NVIDIA Global AI Hackathon · Coding track</span>
+      <h1>Paste an API.<br>Get a tested MCP server.</h1>
+      <p>MCP Forge reads the docs, writes the server with NVIDIA Nemotron, runs the tests on Nebius, and ships it as a live endpoint your agents can call.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#signin">Get started <span class="ring"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 5h7M5.5 2l3 3-3 3"/></svg></span></a>
+        <a class="btn btn-ghost" href="#process">See how it works</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="process">
+    <div class="wrap split">
+      <div class="lead">
+        <span class="eyebrow">How it works</span>
+        <h2>The agent keeps going until the tests pass.</h2>
+        <p>Most generated tool code fails on the first run. MCP Forge expects that. It runs real tests, reads the failures, and fixes its own code before it hands you anything.</p>
+        <ul class="steps">
+          <li><b>Find the docs</b><span>Tavily search pulls the current API pages.</span></li>
+          <li><b>Write the server</b><span>Nemotron Super drafts tools and schemas.</span></li>
+          <li><b>Run the tests</b><span>A Nebius Serverless Job runs them in isolation.</span></li>
+          <li><b>Fix and ship</b><span>Nemotron Nano patches failures, then it deploys.</span></li>
+        </ul>
+      </div>
+      <figure class="diagram" style="margin:0">
+        <svg viewBox="0 0 520 330" role="img" aria-label="Flow: docs to write to test. Failed tests go to fix and back to write. Passing tests go to ship.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1l8 4-8 4z" fill="currentColor"/></marker>
+          </defs>
+          <g>
+            <rect class="node" x="20" y="30" width="140" height="64" rx="10"/><text class="t1" x="36" y="58">Find docs</text><text class="t2" x="36" y="77">Tavily</text>
+            <rect class="node" x="190" y="30" width="140" height="64" rx="10"/><text class="t1" x="206" y="58">Write server</text><text class="t2" x="206" y="77">Nemotron Super</text>
+            <rect class="node" x="360" y="30" width="140" height="64" rx="10"/><text class="t1" x="376" y="58">Run tests</text><text class="t2" x="376" y="77">Serverless Job</text>
+            <rect class="node" x="190" y="150" width="140" height="64" rx="10"/><text class="t1" x="206" y="178">Fix code</text><text class="t2" x="206" y="197">Nemotron Nano</text>
+            <rect class="node ship" x="360" y="250" width="140" height="64" rx="10"/><text class="t1" x="376" y="278">Ship</text><text class="t2" x="376" y="297">Endpoint</text>
+          </g>
+          <path class="ln" d="M160 62H188" marker-end="url(#ah)"/>
+          <path class="ln" d="M330 62H358" marker-end="url(#ah)"/>
+          <path class="ln fail" d="M385 94V182H332" marker-end="url(#ah)"/>
+          <path class="ln" d="M260 150V96" marker-end="url(#ah)"/>
+          <path class="ln pass" d="M450 94V248" marker-end="url(#ah)"/>
+          <text class="lbl fail" x="342" y="173">fail</text>
+          <text class="lbl pass" x="458" y="176">all pass</text>
+        </svg>
+        <figcaption class="cap">One loop. The server only ships when every test is green.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="stack" style="padding-top:0">
+    <div class="wrap">
+      <div class="blue-card">
+        <div class="lead" style="gap:16px">
+          <span class="eyebrow" style="color:var(--on-cerulean-muted)">Open infrastructure</span>
+          <h2>Built on open models and open code.</h2>
+        </div>
+        <div class="stack">
+          <div><b>Nebius Token Factory</b><span>Serves every Nemotron call, from planning to repair.</span></div>
+          <div><b>Nebius Serverless Jobs and Endpoints</b><span>Isolated test runs, then a live MCP URL.</span></div>
+          <div><b>NVIDIA Nemotron</b><span>Super writes the code. Nano handles quick fixes.</span></div>
+          <div><b>Tavily</b><span>Fresh docs for each API, not stale training data.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="wrap">
+      <h2>Every API deserves a server that has been tested.</h2>
+      <div class="foot-row">
+        <span>MCP Forge · MIT license · Made for the Nebius × NVIDIA Global AI Hackathon</span>
+        <nav aria-label="Footer"><a href="#signin">Get started</a><a href="https://nebiusglobalaihackathon.devpost.com/" target="_blank" rel="noopener">Hackathon page</a></nav>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<!-- ================= SIGN IN ================= -->
+<main data-view="signin" hidden>
+  <div class="auth">
+    <aside class="auth-art" aria-hidden="false">
+      <a class="brand" href="#home"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1l2.2 6.8L19 10l-6.8 2.2L10 19l-2.2-6.8L1 10l6.8-2.2z" fill="currentColor"/></svg>MCP Forge</a>
+      <div class="auth-quote">
+        <h2>Forge once.<br>Call it anywhere.</h2>
+        <p>Every server comes with its own tests, so you know it works before an agent calls it.</p>
+      </div>
+    </aside>
+    <section class="auth-pane">
+      <form class="auth-form" id="signin-form" novalidate>
+        <span class="eyebrow">Welcome</span>
+        <h1>Sign in</h1>
+        <p class="note">Enter your email to open your workspace.</p>
+        <div class="field"><label for="si-email">Email</label><input class="input" id="si-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+        <p class="err" id="si-err" role="alert" hidden></p>
+        <button class="btn btn-fill" type="submit">Continue</button>
+        <p class="note">Demo sign in. There is no password, and your details stay in this browser.</p>
+        <a class="lnk-back" href="#home">Back to home</a>
+      </form>
+    </section>
+  </div>
+</main>
+
+<!-- ================= ONBOARDING ================= -->
+<main data-view="onboarding" hidden>
+  <header class="appbar"><div class="wrap">
+    <div class="left"><a class="brand" href="#home"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1l2.2 6.8L19 10l-6.8 2.2L10 19l-2.2-6.8L1 10l6.8-2.2z" fill="currentColor"/></svg>MCP Forge</a></div>
+    <div class="right"><span class="note" id="ob-count">Step 1 of 3</span></div>
+  </div></header>
+  <div class="wrap ob">
+    <div class="segs" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+
+    <section class="ob-step" id="ob-1">
+      <span class="eyebrow">About you</span>
+      <h1>What should we call you?</h1>
+      <div class="field"><label for="ob-name">Your name</label><input class="input" id="ob-name" autocomplete="given-name" placeholder="Prasanna"></div>
+      <div class="field"><span id="ob-use-l">What will you forge servers for?</span>
+        <div class="chips" role="group" aria-labelledby="ob-use-l" id="ob-use">
+          <button type="button" class="chip" aria-pressed="false">Developer tools</button>
+          <button type="button" class="chip" aria-pressed="false">Data and analytics</button>
+          <button type="button" class="chip" aria-pressed="false">Web3 and DeFi</button>
+          <button type="button" class="chip" aria-pressed="false">Internal company APIs</button>
+          <button type="button" class="chip" aria-pressed="false">Something else</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="ob-step" id="ob-2" hidden>
+      <span class="eyebrow">Connections</span>
+      <h1>Connect your keys</h1>
+      <p class="note">MCP Forge calls Nemotron on Nebius Token Factory and searches docs with Tavily. Keys stay in this browser and go only to your own MCP Forge server. Leave a box empty to use the keys in the server's .env file.</p>
+      <div class="field"><label for="ob-nebius">Nebius Token Factory key</label><input class="input" id="ob-nebius" type="password" autocomplete="off" placeholder="Paste your key"></div>
+      <div class="field"><label for="ob-tavily">Tavily key</label><input class="input" id="ob-tavily" type="password" autocomplete="off" placeholder="tvly-..."></div>
+    </section>
+
+    <section class="ob-step" id="ob-3" hidden>
+      <span class="eyebrow">Defaults</span>
+      <h1>Set your defaults</h1>
+      <p class="note">You can change these for each server later.</p>
+      <div class="field"><label for="ob-model">Writer model</label>
+        <select class="select" id="ob-model"><option value="">Auto: best Nemotron on your account</option><option value="super">Nemotron 3 Super</option><option value="ultra">Nemotron 3 Ultra</option><option value="nano">Nemotron 3 Nano</option></select></div>
+      <div class="field"><label for="ob-rounds">Fix rounds allowed</label>
+        <select class="select" id="ob-rounds"><option>1</option><option selected>3</option><option>5</option></select></div>
+      <div class="field"><label for="ob-runner">Where tests run</label>
+        <select class="select" id="ob-runner"><option value="nebius">Nebius Serverless Jobs</option><option value="local">Local runner (development only)</option></select></div>
+    </section>
+
+    <div class="ob-actions">
+      <button class="btn" type="button" id="ob-back" hidden>Back</button>
+      <button class="btn btn-fill" type="button" id="ob-next">Continue</button>
+    </div>
+  </div>
+</main>
+
+<!-- ================= APP (dashboard) ================= -->
+<div data-view="app" hidden>
+  <header class="appbar">
+    <div class="wrap">
+      <div class="left">
+        <a class="brand" href="#home"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1l2.2 6.8L19 10l-6.8 2.2L10 19l-2.2-6.8L1 10l6.8-2.2z" fill="currentColor"/></svg>MCP Forge</a>
+        <span class="sep"></span>
+        <a class="lnk" href="#home">Home</a>
+      </div>
+      <div class="right"><span class="pill" id="modepill"></span><a class="lnk" href="#onboarding">Edit setup</a><span class="sep"></span><span class="avatar" id="avatar" aria-hidden="true"></span><button class="btn btn-sm" id="signout" type="button">Sign out</button></div>
+    </div>
+  </header>
+
+  <div class="wrap app-main">
+    <div class="app-head">
+      <div>
+        <span class="eyebrow" id="eyebrow">Dashboard</span>
+        <h1 style="margin-top:8px">Forge a new MCP server</h1>
+        <p>Describe the API. The agent writes, tests, fixes and deploys it.</p>
+      </div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+
+    <div class="grid3">
+      <!-- left: brief -->
+      <section class="card" aria-labelledby="h-brief">
+        <div class="card-h"><h3 id="h-brief">Brief</h3></div>
+        <div class="card-b">
+          <form class="form" id="brief" autocomplete="off">
+            <div class="field"><label for="f-api">API name</label><input class="input" id="f-api" value="Open-Meteo weather"></div>
+            <div class="field"><label for="f-url">Docs URL <em style="font-style:normal;color:var(--fog)">(optional)</em></label><input class="input" id="f-url" value="https://open-meteo.com/en/docs"></div>
+            <div class="field"><label for="f-tools">Tools to expose</label><textarea class="textarea" id="f-tools">Current weather for a city. Seven day forecast for a city.</textarea></div>
+            <div class="field"><label for="f-model">Writer model</label>
+              <select class="select" id="f-model"><option value="">Auto: best Nemotron</option><option value="super">Nemotron 3 Super</option><option value="ultra">Nemotron 3 Ultra</option><option value="nano">Nemotron 3 Nano</option></select></div>
+            <div class="field"><label for="f-rounds">Fix rounds allowed</label>
+              <select class="select" id="f-rounds"><option>1</option><option selected>3</option><option>5</option></select></div>
+            <button class="btn btn-fill" id="go" type="submit">Forge server</button>
+          </form>
+          <div style="margin-top:24px"><span class="eyebrow">Your servers</span><div class="recent" id="recent"></div></div>
+        </div>
+      </section>
+
+      <!-- middle: pipeline -->
+      <section class="card" aria-labelledby="h-run">
+        <div class="card-h"><h3 id="h-run">Run</h3><span class="pill" id="roundpill">Round 2 of 3</span></div>
+        <ol class="pipe" id="pipe"></ol>
+      </section>
+
+      <!-- right: output -->
+      <section class="card" aria-labelledby="h-out">
+        <div class="card-h"><h3 id="h-out">Output</h3><button class="btn btn-sm" id="copycode" type="button">Copy code</button></div>
+        <div class="tabs" role="tablist" aria-label="Output">
+          <button class="tab" role="tab" id="t-code" aria-controls="p-code" aria-selected="true">Server code</button>
+          <button class="tab" role="tab" id="t-tests" aria-controls="p-tests" aria-selected="false">Tests</button>
+          <button class="tab" role="tab" id="t-logs" aria-controls="p-logs" aria-selected="false">Logs</button>
+          <button class="tab" role="tab" id="t-conn" aria-controls="p-conn" aria-selected="false">Connect</button>
+        </div>
+        <div class="panel" role="tabpanel" id="p-code" aria-labelledby="t-code">
+          <div class="codebar"><div class="ftabs" id="ftabs"></div><span id="codemeta"></span></div>
+          <div class="codebox"><pre id="code"></pre></div>
+        </div>
+        <div class="panel" role="tabpanel" id="p-tests" aria-labelledby="t-tests" hidden><ul class="tests" id="tests"></ul></div>
+        <div class="panel" role="tabpanel" id="p-logs" aria-labelledby="t-logs" hidden><pre class="logs" id="logs"></pre></div>
+        <div class="panel" role="tabpanel" id="p-conn" aria-labelledby="t-conn" hidden>
+          <div class="connect">
+            <div class="field"><span>Endpoint URL (example)</span>
+              <div class="url"><span id="url"></span><button class="btn btn-sm" id="copyurl" type="button">Copy</button></div></div>
+            <div class="field"><span>Add to any MCP client</span><pre id="cfg">{}</pre><div><button class="btn btn-sm" id="copycfg" type="button">Copy config</button></div></div>
+            <p class="note" id="connnote"></p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  /* ---------- storage (falls back to memory when the browser blocks it) ---------- */
+  var mem = {};
+  function ls(k, v) {
+    try {
+      if (v === undefined) { var x = localStorage.getItem(k); return x ? JSON.parse(x) : (mem[k] || null); }
+      if (v === null) { localStorage.removeItem(k); delete mem[k]; } else { localStorage.setItem(k, JSON.stringify(v)); }
+    } catch (e) { if (v === undefined) return mem[k] || null; if (v === null) delete mem[k]; else mem[k] = v; }
+  }
+  function getUser() { return ls("forge.user"); }
+  function prefsKey() { var u = getUser(); return "forge.prefs." + (u ? u.email : "none"); }
+  function getPrefs() { return ls(prefsKey()) || {}; }
+  function setPrefs(p) { ls(prefsKey(), p); }
+
+  /* ---------- views: home > signin > onboarding > app ---------- */
+  var body = document.body, current = "home";
+  function go(h) { if (location.hash === "#" + h) route(); else location.hash = h; }
+  function route() {
+    var h = (location.hash || "").replace("#", ""), user = getUser(), prefs = getPrefs(), v = "home";
+    if (h === "app") v = !user ? "signin" : (!prefs.done ? "onboarding" : "app");
+    else if (h === "onboarding") v = !user ? "signin" : "onboarding";
+    else if (h === "signin") v = user ? (prefs.done ? "app" : "onboarding") : "signin";
+    if ((h === "app" || h === "onboarding" || h === "signin") && v !== h) { location.hash = v; return; }
+    current = v; body.setAttribute("data-v", v);
+    [].forEach.call(document.querySelectorAll("[data-view]"), function (el) { el.hidden = el.getAttribute("data-view") !== v; });
+    if (v === "home") {
+      startScene(); syncNav();
+      if (h === "process" || h === "stack") { var el = document.getElementById(h); if (el) el.scrollIntoView(); }
+      else window.scrollTo(0, 0);
+    } else { stopScene(); window.scrollTo(0, 0); }
+    if (v === "onboarding") obOpen();
+    if (v === "app") appOpen();
+  }
+  window.addEventListener("hashchange", route);
+  function syncNav() {
+    var u = getUser(), a = document.getElementById("nav-auth");
+    if (!a) return;
+    a.textContent = u ? "Dashboard" : "Sign in"; a.setAttribute("href", u ? "#app" : "#signin");
+  }
+
+  /* ---------- sign in ---------- */
+  document.getElementById("signin-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var em = document.getElementById("si-email").value.trim(), err = document.getElementById("si-err");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = "Enter a valid email, like you@example.com."; err.hidden = false; return; }
+    err.hidden = true;
+    ls("forge.user", { email: em.toLowerCase(), name: em.split("@")[0] });
+    var p = getPrefs(); if (!p.name) { p.name = em.split("@")[0]; setPrefs(p); }
+    go(p.done ? "app" : "onboarding");
+  });
+  document.getElementById("signout").addEventListener("click", function () { ls("forge.user", null); go("home"); });
+
+  /* ---------- onboarding ---------- */
+  var obStep = 1;
+  function obShow(n) {
+    obStep = n;
+    [1, 2, 3].forEach(function (i) { document.getElementById("ob-" + i).hidden = i !== n; });
+    [].forEach.call(document.querySelectorAll(".segs i"), function (el, i) { el.className = i < n ? "on" : ""; });
+    document.getElementById("ob-count").textContent = "Step " + n + " of 3";
+    document.getElementById("ob-back").hidden = n === 1;
+    document.getElementById("ob-next").textContent = n === 3 ? "Open dashboard" : "Continue";
+  }
+  function obOpen() {
+    var p = getPrefs(), u = getUser() || {};
+    document.getElementById("ob-name").value = p.name || u.name || "";
+    document.getElementById("ob-nebius").value = p.nebiusKey || "";
+    document.getElementById("ob-tavily").value = p.tavilyKey || "";
+    document.getElementById("ob-model").value = p.model || "";
+    document.getElementById("ob-rounds").value = p.rounds || "3";
+    document.getElementById("ob-runner").value = p.runner || "nebius";
+    [].forEach.call(document.querySelectorAll("#ob-use .chip"), function (c) { c.setAttribute("aria-pressed", String(c.textContent === p.use)); });
+    obShow(1);
+  }
+  [].forEach.call(document.querySelectorAll("#ob-use .chip"), function (c) {
+    c.addEventListener("click", function () {
+      var was = c.getAttribute("aria-pressed") === "true";
+      [].forEach.call(document.querySelectorAll("#ob-use .chip"), function (o) { o.setAttribute("aria-pressed", "false"); });
+      c.setAttribute("aria-pressed", String(!was));
+    });
+  });
+  document.getElementById("ob-back").addEventListener("click", function () { obShow(Math.max(1, obStep - 1)); });
+  document.getElementById("ob-next").addEventListener("click", function () {
+    if (obStep < 3) { obShow(obStep + 1); return; }
+    var sel = document.querySelector("#ob-use .chip[aria-pressed='true']"), name = document.getElementById("ob-name").value.trim();
+    var p = getPrefs();
+    p.done = true; p.name = name || (getUser() || {}).name || "there"; p.use = sel ? sel.textContent : "";
+    p.nebiusKey = document.getElementById("ob-nebius").value.trim(); p.tavilyKey = document.getElementById("ob-tavily").value.trim();
+    p.model = document.getElementById("ob-model").value; p.rounds = document.getElementById("ob-rounds").value; p.runner = document.getElementById("ob-runner").value;
+    setPrefs(p); go("app");
+  });
+
+
+  /* ---------- painted hero ---------- */
+  var cv = document.getElementById("scene"), ctx = cv.getContext("2d");
+  var bg = document.createElement("canvas"), W = 0, H = 0, DPR = 1, embers = [], raf = 0, running = false;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function paint() {
+    var r = cv.getBoundingClientRect(); DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+    cv.width = W * DPR; cv.height = H * DPR; bg.width = W * DPR; bg.height = H * DPR;
+    var g = bg.getContext("2d"); g.setTransform(DPR, 0, 0, DPR, 0, 0); var R = rng(7);
+    var sky = g.createLinearGradient(0, 0, 0, H * 0.78);
+    sky.addColorStop(0, "#070f22"); sky.addColorStop(0.45, "#12294f"); sky.addColorStop(0.82, "#2b5580"); sky.addColorStop(1, "#4d7a99");
+    g.fillStyle = sky; g.fillRect(0, 0, W, H);
+    for (var i = 0; i < 170; i++) { var sx = R() * W, sy = R() * H * 0.55, sr = R() * 1.1 + 0.2; g.fillStyle = "rgba(255,255,255," + (0.25 + R() * 0.6) + ")"; g.beginPath(); g.arc(sx, sy, sr, 0, 6.283); g.fill(); }
+    var mx = W * 0.8, my = H * 0.22, mr = Math.max(22, Math.min(W, H) * 0.05);
+    var mg = g.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 6); mg.addColorStop(0, "rgba(214,232,255,0.38)"); mg.addColorStop(1, "rgba(214,232,255,0)");
+    g.fillStyle = mg; g.fillRect(mx - mr * 6, my - mr * 6, mr * 12, mr * 12);
+    g.fillStyle = "#f2f5ec"; g.beginPath(); g.arc(mx, my, mr, 0, 6.283); g.fill();
+    g.fillStyle = "rgba(160,176,190,0.35)"; [[-.3, -.2, .22], [.25, .1, .16], [-.1, .35, .12]].forEach(function (c) { g.beginPath(); g.arc(mx + c[0] * mr, my + c[1] * mr, c[2] * mr, 0, 6.283); g.fill(); });
+    var layers = [{ y: 0.66, c: "#1f4068", hmin: 40, hmax: 150, win: 0 }, { y: 0.73, c: "#152f50", hmin: 50, hmax: 190, win: 0.12 }, { y: 0.81, c: "#0c1c35", hmin: 60, hmax: 230, win: 0.28 }];
+    layers.forEach(function (L) {
+      var x = -10, base = H * L.y; g.fillStyle = L.c;
+      while (x < W + 20) {
+        var bw = 22 + R() * 50, bh = (L.hmin + R() * (L.hmax - L.hmin)) * (H / 700);
+        g.fillRect(x, base - bh, bw, bh + H);
+        if (R() > 0.7) { g.fillRect(x + bw * 0.4, base - bh - 14 - R() * 16, 3, 20); }
+        if (L.win) for (var wy = base - bh + 10; wy < base - 6; wy += 11) for (var wx = x + 5; wx < x + bw - 6; wx += 9) { if (R() < L.win) { g.fillStyle = R() > 0.3 ? "rgba(246,190,102,0.85)" : "rgba(160,205,240,0.7)"; g.fillRect(wx, wy, 3, 4); g.fillStyle = L.c; } }
+        x += bw + R() * 4;
+      }
+    });
+    var gr = g.createLinearGradient(0, H * 0.86, 0, H); gr.addColorStop(0, "#0a1626"); gr.addColorStop(1, "#04080f");
+    g.fillStyle = gr; g.beginPath(); g.moveTo(0, H * 0.9);
+    for (var k = 0; k <= W; k += 24) g.lineTo(k, H * 0.89 + Math.sin(k * 0.012) * 6 + R() * 3);
+    g.lineTo(W, H); g.lineTo(0, H); g.closePath(); g.fill();
+    for (var f = 0; f < Math.round(W / 5); f++) {
+      var fx = R() * W, fy = H * 0.9 + R() * H * 0.1, fh = 10 + R() * 34 * (fy / H), tint = R();
+      g.strokeStyle = "rgba(40,86,60,0.9)"; g.lineWidth = 1; g.beginPath(); g.moveTo(fx, fy); g.quadraticCurveTo(fx + (R() - 0.5) * 8, fy - fh * 0.5, fx + (R() - 0.5) * 6, fy - fh); g.stroke();
+      g.fillStyle = tint > 0.55 ? "#e9a93d" : (tint > 0.25 ? "#9a7bd0" : "#6fb4e0"); g.beginPath(); g.arc(fx, fy - fh, 1.6 + R() * 1.6, 0, 6.283); g.fill();
+    }
+    var fxp = W * 0.74, fyp = H * 0.93;
+    var glow = g.createRadialGradient(fxp, fyp, 0, fxp, fyp, H * 0.55); glow.addColorStop(0, "rgba(255,150,70,0.5)"); glow.addColorStop(0.4, "rgba(255,120,50,0.16)"); glow.addColorStop(1, "rgba(255,120,50,0)");
+    g.fillStyle = glow; g.fillRect(0, 0, W, H);
+    g.fillStyle = "#ffb15c"; g.beginPath(); g.ellipse(fxp, fyp - 2, 16, 5, 0, 0, 6.283); g.fill();
+    g.fillStyle = "#fff0c8"; g.beginPath(); g.ellipse(fxp, fyp - 3, 7, 2.5, 0, 0, 6.283); g.fill();
+    var n = reduce ? 28 : 64; embers = [];
+    for (var e = 0; e < n; e++) embers.push(spawn(true));
+  }
+  function spawn(initial) {
+    var fx = W * 0.74, fy = H * 0.93, life = 0.5 + Math.random() * 0.5;
+    return { x: fx + (Math.random() - 0.5) * 36, y: fy - (initial ? Math.random() * H * 0.5 : 0), vx: (Math.random() - 0.3) * 0.25, vy: -(0.25 + Math.random() * 0.6), r: 0.6 + Math.random() * 1.6, a: initial ? Math.random() : 0, life: life, ph: Math.random() * 6.283 };
+  }
+  function frame(t) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(bg, 0, 0);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = "lighter";
+    for (var i = 0; i < embers.length; i++) {
+      var p = embers[i];
+      if (!reduce) { p.x += p.vx + Math.sin(t / 700 + p.ph) * 0.15; p.y += p.vy; p.a += 0.008; }
+      var fade = Math.max(0, 1 - Math.max(0, p.a - p.life) * 2.2);
+      if (p.a > p.life + 0.45 || p.y < 0) { embers[i] = spawn(false); continue; }
+      var al = Math.min(1, p.a * 4) * fade * (0.55 + 0.45 * Math.sin(t / 130 + p.ph));
+      ctx.fillStyle = "rgba(255," + Math.round(150 + 80 * p.a) + ",90," + Math.max(0, al).toFixed(3) + ")";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+    if (running && !reduce) raf = requestAnimationFrame(frame);
+  }
+  function startScene() { if (running) return; paint(); running = true; if (reduce) { frame(0); running = false; } else raf = requestAnimationFrame(frame); }
+  function stopScene() { running = false; cancelAnimationFrame(raf); }
+  var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { if (body.getAttribute("data-v") === "home") { var was = running; stopScene(); running = false; startScene(); } }, 150); });
+
+  /* ---------- dashboard: state ---------- */
+  var API = location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
+  var S = { mode: "sample", health: null, steps: [], files: {}, prev: {}, changed: [], tests: [], round: 0, failedBefore: {}, logs: [], result: null, sources: [], file: "server.py", t0: 0, busy: false };
+  var ICON = {
+    done: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M6.4 10.2l2.4 2.4 4.8-5"/></svg>',
+    warn: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M10 5.6v5M10 13.3v.2"/></svg>',
+    run: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 2a8 8 0 1 0 8 8" /></svg>',
+    wait: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="10" cy="10" r="8"/></svg>',
+    fail: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M7.2 7.2l5.6 5.6M12.8 7.2l-5.6 5.6"/></svg>'
+  };
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- syntax colors (Python) ---------- */
+  function hl(line) {
+    var cm = "", idx = -1, q = false;
+    for (var j = 0; j < line.length; j++) { var ch = line[j]; if (ch === '"' || ch === "'") q = q === ch ? false : (q || ch); if (ch === "#" && !q) { idx = j; break; } }
+    if (idx >= 0) { cm = '<span class="c">' + esc(line.slice(idx)) + "</span>"; line = line.slice(0, idx); }
+    var out = esc(line);
+    out = out.replace(/(&quot;[^&]*?&quot;|"[^"]*"|'[^']*')/g, '<span class="s">$1</span>');
+    out = out.replace(/\b(from|import|async|await|def|return|if|not|with|as|for|in|raise|or|and|class|try|except|else|elif|None|True|False)\b(?![^<]*<\/span>)/g, '<span class="k">$1</span>');
+    out = out.replace(/(@mcp\.tool\(\))/g, '<span class="d">$1</span>');
+    return out + cm;
+  }
+
+  /* ---------- renderers ---------- */
+  function renderMode() {
+    var p = $("modepill");
+    if (S.mode === "live") {
+      var h = S.health || {}, ok = h.nebius_key && h.tavily_key || (getPrefs().nebiusKey && getPrefs().tavilyKey);
+      p.className = "pill " + (ok ? "ok" : "warn");
+      p.innerHTML = '<span class="dot"></span>' + (ok ? "Live" : "Live · add API keys");
+    } else { p.className = "pill"; p.innerHTML = '<span class="dot"></span>Sample run · demo data'; }
+    $("connnote").textContent = S.mode === "live" ? "This server is running on the address above." : "This screen shows a sample run. Start the API to forge real servers.";
+  }
+  function renderPipe() {
+    var el = $("pipe");
+    if (!S.steps.length) { el.innerHTML = '<li style="display:block"><div class="empty"><b>No run yet</b>Fill in the brief and press Forge server. Each step appears here as it happens.</div></li>'; $("roundpill").textContent = "Ready"; return; }
+    el.innerHTML = S.steps.map(function (s) {
+      var det = s.state === "wait" ? "Waiting" : s.state === "run" ? "Working" : (s.detail || "");
+      return '<li data-s="' + s.state + '"><span class="ic">' + ICON[s.state] + '</span><div><div class="nm">' + esc(s.name) + '</div><div class="dt">' + esc(det) + '</div><span class="tool">' + esc(s.tool) + '</span></div><span class="sec">' + (s.secs != null && (s.state === "done" || s.state === "warn") ? s.secs.toFixed(1) + " s" : "") + "</span></li>";
+    }).join("");
+    var rs = S.steps.filter(function (s) { return /^test/.test(s.key); });
+    $("roundpill").textContent = rs.length ? "Round " + rs.length + " of " + ((getPrefs().rounds) || 3) : "Starting";
+  }
+  function renderCode() {
+    var names = Object.keys(S.files);
+    $("ftabs").innerHTML = names.map(function (n) { return '<button type="button" class="ftab" aria-pressed="' + (n === S.file) + '" data-f="' + esc(n) + '">' + esc(n) + "</button>"; }).join("");
+    [].forEach.call($("ftabs").querySelectorAll(".ftab"), function (b) { b.addEventListener("click", function () { S.file = b.getAttribute("data-f"); renderCode(); }); });
+    var src = S.files[S.file];
+    if (src == null) { $("code").innerHTML = '<div class="empty"><b>No code yet</b>The server and its tests appear here after the model writes them.</div>'; $("codemeta").textContent = ""; return; }
+    var old = {}; (S.prev[S.file] || "").split("\n").forEach(function (l) { old[l] = 1; });
+    var lines = src.replace(/\n$/, "").split("\n"), changed = 0;
+    $("code").innerHTML = lines.map(function (l, i) {
+      var hit = S.prev[S.file] != null && l.trim() && !old[l]; if (hit) changed++;
+      return '<div class="ln' + (hit ? " hl" : "") + '"><i>' + (i + 1) + "</i><span>" + (l ? hl(l) : "&nbsp;") + "</span></div>";
+    }).join("");
+    $("codemeta").textContent = lines.length + " lines" + (changed ? " · " + changed + " changed in the last fix" : "");
+  }
+  function lastLine(s) { var a = String(s || "").trim().split("\n").filter(Boolean); return (a[a.length - 1] || "").slice(0, 170); }
+  function human(n) { n = String(n).replace(/^test_/, "").replace(/_/g, " "); return n.charAt(0).toUpperCase() + n.slice(1); }
+  function renderTests() {
+    var el = $("tests");
+    if (!S.tests.length) { el.innerHTML = '<li style="display:block"><div class="empty"><b>No test results yet</b>Results show up after the first test round.</div></li>'; return; }
+    el.innerHTML = S.tests.map(function (t) {
+      var pass = t.outcome === "passed", fixed = pass && S.failedBefore[t.name];
+      return "<li>" + (pass ? ICON.done : '<span style="color:var(--bad)">' + ICON.fail + "</span>") + '<div><div class="nm">' + esc(human(t.name)) + "</div>" + (pass ? "" : '<div class="why">' + esc(lastLine(t.detail)) + "</div>") + "</div>" +
+        (pass ? (fixed ? '<span class="pill warn">Fixed in round ' + S.round + "</span>" : '<span class="pill ok">Passed</span>') : '<span class="pill bad">Failed</span>') + "</li>";
+    }).join("");
+  }
+  function clock() { var s = Math.max(0, Math.round((Date.now() - S.t0) / 1000)); return ("0" + Math.floor(s / 60)).slice(-2) + ":" + ("0" + (s % 60)).slice(-2); }
+  function renderLogs() {
+    var el = $("logs");
+    if (!S.logs.length) { el.textContent = "Nothing yet."; return; }
+    el.innerHTML = S.logs.map(function (l) { return '<span class="t">' + l.t + "</span>  " + (l.level ? '<span class="' + l.level + '">' + esc(l.text) + "</span>" : esc(l.text)); }).join("\n");
+    el.scrollTop = el.scrollHeight;
+  }
+  function renderResult() {
+    var r = S.result, el = $("result");
+    if (!r) { el.innerHTML = ""; return; }
+    if (r.state === "run") el.innerHTML = '<span class="pill run"><span class="dot"></span>Forging</span><span class="meta">Reading, writing and testing</span>';
+    else if (r.state === "error") el.innerHTML = '<span class="pill bad"><span class="dot"></span>Stopped</span><span class="meta">' + esc(r.message) + "</span>";
+    else if (!r.ok) el.innerHTML = '<span class="big">Not ready</span><span class="pill bad"><span class="dot"></span>' + r.passed + " of " + r.total + ' tests passed</span><span class="meta">Still failing after the allowed rounds</span>';
+    else el.innerHTML = '<span class="big">Server ready</span><span class="pill ok"><span class="dot"></span>' + r.passed + " of " + r.total + ' tests passed</span><span class="meta">' + r.rounds + (r.rounds === 1 ? " round" : " rounds") + " · " + r.secs + " s</span>";
+  }
+  function renderConnect() {
+    var d = S.deploy;
+    $("url").textContent = d ? d.url : "Your endpoint appears here after deploy.";
+    var cfg = d ? { mcpServers: {} } : null;
+    if (d) { cfg.mcpServers[d.name || "my-server"] = d.token ? { url: d.url, headers: { Authorization: "Bearer " + d.token } } : { url: d.url }; }
+    $("cfg").textContent = cfg ? JSON.stringify(cfg, null, 2) : "{}";
+  }
+  function renderRecent() {
+    var runs = ls("forge.runs") || [], el = $("recent");
+    if (S.mode === "sample") runs = runs.concat([{ name: "GitHub issues", meta: "4 tools · 1 round", state: "example" }, { name: "Stripe invoices", meta: "6 tools · 3 rounds", state: "example" }]);
+    if (!runs.length) { el.innerHTML = '<div class="row" style="color:var(--ash);font-weight:400">Servers you forge show up here.</div>'; return; }
+    el.innerHTML = runs.slice(0, 8).map(function (r) {
+      return '<div class="row"><span>' + esc(r.name) + "<small>" + esc(r.meta) + (r.url ? " · " + esc(r.url) : "") + "</small></span>" +
+        (r.state === "example" ? '<span class="pill">Example</span>' : r.ok ? '<span class="pill ok">Live</span>' : '<span class="pill warn">Not ready</span>') + "</div>";
+    }).join("");
+  }
+  function renderAll() { renderMode(); renderPipe(); renderCode(); renderTests(); renderLogs(); renderResult(); renderConnect(); renderRecent(); }
+
+  /* ---------- events (the live API and the sample both feed this) ---------- */
+  function applyEvent(ev) {
+    if (ev.type === "step") {
+      var s = S.steps.filter(function (x) { return x.key === ev.key; })[0];
+      if (!s) { s = { key: ev.key }; S.steps.push(s); }
+      s.name = ev.name; s.tool = ev.tool; s.state = ev.state; s.detail = ev.detail; s.secs = ev.secs;
+      renderPipe();
+    } else if (ev.type === "log") { S.logs.push({ t: clock(), level: ev.level || "", text: ev.text }); renderLogs();
+    } else if (ev.type === "code") {
+      S.prev = S.files; S.files = ev.files; S.changed = ev.changed || [];
+      if (!S.files[S.file]) S.file = "server.py";
+      if (!S.changed.length) S.prev = {};
+      renderCode();
+    } else if (ev.type === "tests") {
+      S.tests.forEach(function (t) { if (t.outcome !== "passed") S.failedBefore[t.name] = 1; });
+      S.round = ev.round; S.tests = ev.tests; renderTests();
+    } else if (ev.type === "sources") { S.sources = ev.pages;
+    } else if (ev.type === "done") {
+      var sm = ev.summary || {};
+      S.result = { state: "done", ok: ev.ok, passed: sm.passed, total: sm.total, rounds: sm.rounds || S.round, secs: sm.secs };
+      if (ev.ok) { S.deploy = { url: ev.url, token: ev.token, name: ev.server_name }; }
+      renderResult(); renderConnect(); saveRun(ev);
+    } else if (ev.type === "error") { S.result = { state: "error", message: ev.message }; renderResult(); }
+  }
+  function saveRun(ev) {
+    if (S.mode !== "live") return;
+    var runs = ls("forge.runs") || [], sm = ev.summary || {};
+    runs.unshift({ name: $("f-api").value.trim() || "Server", meta: (sm.total || 0) + " tests · " + (sm.rounds || "?") + " rounds", ok: !!ev.ok, url: ev.url || "" });
+    ls("forge.runs", runs.slice(0, 12)); renderRecent();
+  }
+  function resetRun() { S.steps = []; S.files = {}; S.prev = {}; S.changed = []; S.tests = []; S.round = 0; S.failedBefore = {}; S.logs = []; S.result = null; S.deploy = null; S.t0 = Date.now(); S.file = "server.py"; }
+
+  /* ---------- sample run (used when no API is reachable) ---------- */
+  var V2 = [
+    'from mcp.server.fastmcp import FastMCP', 'import httpx', '', 'mcp = FastMCP("open-meteo")',
+    'GEO = "https://geocoding-api.open-meteo.com/v1/search"', 'API = "https://api.open-meteo.com/v1/forecast"', '', '',
+    'async def _locate(city: str) -> tuple[float, float]:', '    async with httpx.AsyncClient(timeout=10) as http:',
+    '        r = await http.get(GEO, params={"name": city, "count": 1})', '        r.raise_for_status()',
+    '        hits = r.json().get("results") or []', '    if not hits:', '        raise ValueError(f"No place found for \'{city}\'")',
+    '    return hits[0]["latitude"], hits[0]["longitude"]', '', '', '@mcp.tool()', 'async def current_weather(city: str) -> dict:',
+    '    """Current temperature and wind for a city."""', '    lat, lon = await _locate(city)', '    async with httpx.AsyncClient(timeout=10) as http:',
+    '        r = await http.get(API, params={', '            "latitude": lat, "longitude": lon,', '            "current": "temperature_2m,wind_speed_10m"})',
+    '        r.raise_for_status()', '    now = r.json()["current"]', '    return {"city": city, "temp_c": now["temperature_2m"],', '            "wind_kmh": now["wind_speed_10m"]}', '', '',
+    '@mcp.tool()', 'async def forecast_7_day(city: str) -> list[dict]:', '    """High, low and rain for the next seven days."""', '    lat, lon = await _locate(city)',
+    '    async with httpx.AsyncClient(timeout=10) as http:', '        r = await http.get(API, params={', '            "latitude": lat, "longitude": lon, "forecast_days": 7,',
+    '            "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum"})', '        r.raise_for_status()', '    d = r.json()["daily"]',
+    '    return [{"date": d["time"][i],', '             "high_c": d["temperature_2m_max"][i],', '             "low_c": d["temperature_2m_min"][i],',
+    '             "rain_mm": d["precipitation_sum"][i]}', '            for i in range(len(d["time"]))]', '', '',
+    'if __name__ == "__main__":', '    mcp.run(transport="streamable-http")'
+  ];
+  var V1 = V2.filter(function (l) { return l !== "    if not hits:" && l.indexOf("No place found") < 0; }).map(function (l) { return l.replace('d["precipitation_sum"][i]}', 'd["rain_sum"][i]}'); });
+  var TESTS_PY = 'import httpx, pytest, respx\nfrom server import current_weather, forecast_7_day, mcp\n\n\nasync def test_server_lists_both_tools():\n    names = sorted(t.name for t in await mcp.list_tools())\n    assert names == ["current_weather", "forecast_7_day"]\n';
+  function T(n, ok, d) { return { name: n, outcome: ok ? "passed" : "failed", detail: d || "", secs: 0.1 }; }
+  var T1 = [T("test_server_lists_both_tools", 1), T("test_current_weather_returns_temperature", 1), T("test_current_weather_unknown_city_has_clear_error", 0, "KeyError: 'results'"), T("test_forecast_returns_seven_days", 1), T("test_forecast_has_high_low_and_rain", 0, "KeyError: 'rain_sum'"), T("test_slow_call_times_out_cleanly", 1)];
+  var T2 = T1.map(function (t) { return T(t.name, 1); });
+  function st(key, name, tool, state, detail, secs) { return { type: "step", key: key, name: name, tool: tool, state: state, detail: detail, secs: secs }; }
+  function lg(text, level) { return { type: "log", text: text, level: level || "" }; }
+  var SAMPLE = [
+    [200, lg("Brief received: Open-Meteo weather")],
+    [100, st("docs", "Find the docs", "Tavily search", "run")], [700, st("docs", "Find the docs", "Tavily search", "done", "Read 3 pages on open-meteo.com", 4.1)], [0, lg("tavily  3 pages read, 11 endpoints found", "ok")],
+    [100, st("plan", "Plan the tools", "Nemotron 3 Super", "run")], [600, st("plan", "Plan the tools", "Nemotron 3 Super", "done", "2 tools: current_weather, forecast_7_day", 3.2)],
+    [100, st("write", "Write the server", "Nemotron 3 Super", "run")], [900, st("write", "Write the server", "Nemotron 3 Super", "done", V1.length + " lines of Python", 9.8)],
+    [0, { type: "code", files: { "server.py": V1.join("\n") + "\n", "test_server.py": TESTS_PY }, changed: [] }], [0, lg("write  server.py " + V1.length + " lines", "ok")],
+    [100, st("test1", "Run tests, round 1", "Serverless Job", "run")], [1100, st("test1", "Run tests, round 1", "Serverless Job", "warn", "4 of 6 passed", 11.5)],
+    [0, { type: "tests", round: 1, tests: T1, error: "" }], [0, lg("tests  round 1: 4 of 6 passed", "wn")], [0, lg("FAIL test_current_weather_unknown_city_has_clear_error  KeyError: 'results'", "bad")], [0, lg("FAIL test_forecast_has_high_low_and_rain  KeyError: 'rain_sum'", "bad")],
+    [100, st("fix1", "Fix and rerun, round 2", "Nemotron 3 Nano", "run")], [1200, st("fix1", "Fix and rerun, round 2", "Nemotron 3 Nano", "done", "Patched server.py", 14.2)],
+    [0, { type: "code", files: { "server.py": V2.join("\n") + "\n", "test_server.py": TESTS_PY }, changed: ["server.py"] }], [0, lg("fix  patched server.py")],
+    [100, st("test2", "Run tests, round 2", "Serverless Job", "run")], [900, st("test2", "Run tests, round 2", "Serverless Job", "done", "6 of 6 passed", 9.4)],
+    [0, { type: "tests", round: 2, tests: T2, error: "" }], [0, lg("tests  round 2: 6 of 6 passed", "ok")],
+    [100, st("deploy", "Deploy", "Serverless Endpoint", "run")], [700, st("deploy", "Deploy", "Serverless Endpoint", "done", "Live and answering tool calls", 5.6)],
+    [0, lg("deploy  https://forge-open-meteo.example.com/mcp", "ok")],
+    [100, { type: "done", ok: true, url: "https://forge-open-meteo.example.com/mcp", token: null, server_name: "open-meteo", summary: { passed: 6, total: 6, rounds: 2, secs: 48 } }]
+  ];
+  function playSample(done) {
+    resetRun(); S.result = { state: "run" }; renderAll();
+    var i = 0;
+    (function next() { if (i >= SAMPLE.length) { done(); return; } var s = SAMPLE[i++]; setTimeout(function () { applyEvent(s[1]); next(); }, s[0]); })();
+  }
+  function loadSampleAtRest() { resetRun(); SAMPLE.forEach(function (s) { applyEvent(s[1]); }); S.result = { state: "done", ok: true, passed: 6, total: 6, rounds: 2, secs: 48 }; S.mode = "sample"; renderAll(); }
+
+  /* ---------- live run: POST then read the event stream ---------- */
+  function keyHeaders() { var p = getPrefs(), h = {}; if (p.nebiusKey) h["X-Nebius-Key"] = p.nebiusKey; if (p.tavilyKey) h["X-Tavily-Key"] = p.tavilyKey; return h; }
+  async function liveRun(body, done) {
+    resetRun(); S.result = { state: "run" }; renderAll();
+    try {
+      var res = await fetch(API + "/api/forge", { method: "POST", headers: Object.assign({ "Content-Type": "application/json" }, keyHeaders()), body: JSON.stringify(body) });
+      if (!res.ok) { var t = ""; try { t = (await res.json()).detail; } catch (e) { } throw new Error(typeof t === "string" && t ? t : "The server answered " + res.status); }
+      var rd = res.body.getReader(), dec = new TextDecoder(), buf = "";
+      for (;;) {
+        var c = await rd.read(); if (c.done) break;
+        buf += dec.decode(c.value, { stream: true });
+        var parts = buf.split("\n\n"); buf = parts.pop();
+        parts.forEach(function (p) { if (p.indexOf("data: ") === 0) { try { applyEvent(JSON.parse(p.slice(6))); } catch (e) { } } });
+      }
+      if (S.result && S.result.state === "run") applyEvent({ type: "error", message: "The stream ended early. Check the API log." });
+    } catch (e) { applyEvent({ type: "error", message: e.message || "Could not reach the API." }); }
+    done();
+  }
+
+  /* ---------- form, tabs, copy ---------- */
+  function setBusy(b) { S.busy = b; var g = $("go"); g.disabled = b; g.textContent = b ? "Forging…" : "Forge server"; }
+  $("brief").addEventListener("submit", function (e) {
+    e.preventDefault(); if (S.busy) return;
+    var name = $("f-api").value.trim();
+    if (name.length < 2) { toast("Enter the API name first."); $("f-api").focus(); return; }
+    var p = getPrefs();
+    if (S.mode === "live") {
+      var h = S.health || {};
+      if (!((h.nebius_key || p.nebiusKey) && (h.tavily_key || p.tavilyKey))) { toast("Add your Nebius and Tavily keys first. Use Edit setup."); return; }
+      setBusy(true);
+      liveRun({ api_name: name, docs_url: $("f-url").value.trim(), tools: $("f-tools").value.trim(), writer_hint: $("f-model").value || p.model || "", max_rounds: parseInt($("f-rounds").value, 10) || 3, runner: p.runner || "" }, function () { setBusy(false); if (S.result && S.result.ok) toast("Server ready. " + S.result.passed + " of " + S.result.total + " tests passed."); });
+    } else { setBusy(true); playSample(function () { setBusy(false); toast("Server ready. Six of six tests passed."); }); }
+  });
+  var tabs = [].slice.call(document.querySelectorAll(".tab"));
+  function pick(tab) {
+    tabs.forEach(function (b) { var on = b === tab; b.setAttribute("aria-selected", on); $(b.getAttribute("aria-controls")).hidden = !on; });
+    $("copycode").style.visibility = tab.id === "t-code" ? "visible" : "hidden";
+  }
+  tabs.forEach(function (b, i) {
+    b.addEventListener("click", function () { pick(b); });
+    b.addEventListener("keydown", function (e) { var n = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (n) { var t = tabs[(i + n + tabs.length) % tabs.length]; t.focus(); pick(t); } });
+  });
+  var toastEl = $("toast"), tt;
+  function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tt); tt = setTimeout(function () { toastEl.classList.remove("on"); }, 2200); }
+  function copy(text, ok, node) {
+    function fallback() { try { var r = document.createRange(); r.selectNodeContents(node); var s = getSelection(); s.removeAllRanges(); s.addRange(r); toast("Selected. Press Ctrl+C to copy."); } catch (e) { } }
+    try { navigator.clipboard.writeText(text).then(function () { toast(ok); }, fallback); } catch (e) { fallback(); }
+  }
+  $("copycode").addEventListener("click", function () { if (S.files[S.file] != null) copy(S.files[S.file], S.file + " copied", $("code")); });
+  $("copyurl").addEventListener("click", function () { if (S.deploy) copy(S.deploy.url, "URL copied", $("url")); });
+  $("copycfg").addEventListener("click", function () { if (S.deploy) copy($("cfg").textContent, "Config copied", $("cfg")); });
+
+  /* ---------- opening the dashboard ---------- */
+  var healthDone = false;
+  async function checkHealth() {
+    try {
+      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 2500);
+      var r = await fetch(API + "/api/health", { headers: keyHeaders(), signal: ctl.signal }); clearTimeout(to);
+      var h = r.ok ? await r.json() : null;
+      if (!h || h.ok !== true) throw 0;
+      S.mode = "live"; S.health = h;
+    } catch (e) { S.mode = "sample"; S.health = null; }
+  }
+  async function appOpen() {
+    var p = getPrefs(), u = getUser() || {}, name = p.name || u.name || "there";
+    $("avatar").textContent = (name.charAt(0) || "?").toUpperCase();
+    $("eyebrow").textContent = "Dashboard · " + name;
+    $("f-rounds").value = p.rounds || "3"; $("f-model").value = p.model || "";
+    if (!healthDone) { loadSampleAtRest(); }
+    await checkHealth(); healthDone = true;
+    if (S.mode === "live" && !S.busy) { resetRun(); renderAll(); } else if (!S.busy) { loadSampleAtRest(); }
+    renderAll();
+  }
+  pick(tabs[0]);
+  syncNav();
+  route();
+
+})();
+</script>
+</body>

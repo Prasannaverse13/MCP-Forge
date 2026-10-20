@@ -1,0 +1,120 @@
+<body>
+
+<!-- ================= LANDING ================= -->
+<main data-view="home" id="top">
+  <header class="gnav">
+    <div class="wrap">
+      <a class="brand" href="#home"><span class="ingot tiny" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>MCP Forge</a>
+      <nav class="mid" aria-label="Sections"><a href="#how">How it works</a><a href="#built">Built on</a><a href="https://nebiusglobalaihackathon.devpost.com/" target="_blank" rel="noopener">Hackathon</a></nav>
+      <div class="end"><a class="plain" id="nav-signin" href="#signin">Sign in</a><a class="pill-btn sm" id="nav-cta" href="#signin">Get started</a></div>
+    </div>
+  </header>
+
+  <section class="dark hero intro" aria-label="Introduction">
+    <p class="name">MCP Forge</p>
+    <h1><span>Docs in.</span><span class="cool">Server out.</span></h1>
+    <p class="sub">Give it any API. MCP Forge writes an MCP server, tests it, fixes what breaks, and puts it online.</p>
+    <div class="ctas"><a class="pill-btn" href="#signin">Get started</a><a class="text-link" href="#how">See how it works<span class="chev" aria-hidden="true"></span></a></div>
+    <div class="stage" id="stage">
+      <canvas id="sparks" aria-hidden="true"></canvas>
+      <div class="glow" id="glow" aria-hidden="true"></div>
+      <div class="ingot" id="heroIngot" role="img" aria-label="The MCP Forge chip, glowing hot and cooling to steel">
+        <span class="glyph"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg><span class="mark">MCP</span></span>
+      </div>
+      <div class="floor" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="dark story" id="how" aria-label="How it works">
+    <div class="pin">
+      <div class="wrap">
+        <div class="static-head"><h2 style="font-size:clamp(40px,6vw,64px)">One loop, start to finish.</h2></div>
+        <div class="grid">
+          <div>
+            <div class="copy">
+              <div class="say on" data-i="0"><h2>It reads the docs.</h2><p>Tavily pulls the live API reference, so nothing comes from stale memory.</p></div>
+              <div class="say" data-i="1"><h2>It writes the server.</h2><p>Nemotron 3 Super plans the tools, then writes the server and its tests.</p></div>
+              <div class="say" data-i="2"><h2>It breaks it, then fixes it.</h2><p>Tests run in a Nebius Serverless Job. Nemotron 3 Nano repairs whatever fails.</p></div>
+              <div class="say" data-i="3"><h2>It ships when it passes.</h2><p>With every test green, the server goes live on a Nebius Serverless Endpoint.</p></div>
+            </div>
+            <div class="rail" aria-hidden="true">
+              <div class="on"><i><b></b></i>Read</div><div><i><b></b></i>Write</div><div><i><b></b></i>Test</div><div><i><b></b></i>Ship</div>
+            </div>
+          </div>
+          <div class="win" aria-hidden="true">
+            <div class="bar"><i></i><i></i><i></i><span id="wintitle">open-meteo.com/en/docs</span></div>
+            <div class="body">
+              <div class="scene doc on" id="sc0">
+                <h4>Weather Forecast API</h4>
+                <div class="bars" id="docbars">
+                  <span style="width:92%"></span><span style="width:78%"></span>
+                  <div class="ep" data-at="0.25">GET /v1/forecast?latitude&amp;longitude&amp;daily</div>
+                  <span style="width:85%"></span><span style="width:60%"></span>
+                  <div class="ep" data-at="0.55">GET /v1/search?name&amp;count</div>
+                  <span style="width:70%"></span><span style="width:88%"></span>
+                  <div class="beam" id="beam"></div>
+                </div>
+                <div class="found" id="found"><span class="tag">2 endpoints found</span><span class="tag">3 pages read</span></div>
+              </div>
+              <div class="scene code-scene" id="sc1"><pre id="typed"></pre></div>
+              <div class="scene tests-scene" id="sc2">
+                <div class="head"><span id="trTitle">Round 1</span><span id="trScore" style="color:#8e8e93;font-weight:500">0 of 6 passed</span></div>
+                <ul id="trList"></ul>
+              </div>
+              <div class="scene ship-scene" id="sc3">
+                <span class="ingot mid" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+                <span class="live"><i></i>Live</span>
+                <span class="url">https://open-meteo.endpoints.example/mcp</span>
+                <span class="meta">6 of 6 tests passed in 2 rounds</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bento-sec" id="built">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Built on open infrastructure.</h2>
+        <p>Open models write and repair the code. Nebius runs the tests and hosts the result.</p>
+      </div>
+      <div class="bento">
+        <article class="tile wide">
+          <div><span class="who">NVIDIA Nemotron 3 Super on Nebius Token Factory</span><h3 style="margin-top:12px">Writes the server and the tests.</h3><p>Every tool gets a typed signature, a docstring, and tests with mocked HTTP.</p></div>
+<div class="v-code"><span class="d">@mcp.tool()</span>
+<span class="k">async def</span> forecast_7_day(city: str) -&gt; list[dict]:
+    <span class="s">"""High, low and rain for the next seven days."""</span>
+    lat, lon = <span class="k">await</span> _locate(city)</div>
+        </article>
+        <article class="tile">
+          <div><span class="who">NVIDIA Nemotron 3 Nano</span><h3 style="margin-top:12px">Fixes what fails.</h3><p>It reads the failing test and patches the cause.</p></div>
+          <div class="v-diff"><span class="m">- "rain_mm": d["rain_sum"][i]</span><span class="p">+ "rain_mm": d["precipitation_sum"][i]</span></div>
+        </article>
+        <article class="tile">
+          <div><span class="who">Nebius Serverless Jobs</span><h3 style="margin-top:12px">Tested in isolation.</h3><p>Each round runs in a clean container.</p></div>
+          <div class="v-dots" id="vdots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </article>
+        <article class="tile">
+          <div><span class="who">Tavily</span><h3 style="margin-top:12px">Fresh docs every time.</h3><p>Search and extract read the current reference.</p></div>
+          <div class="v-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>Open-Meteo API reference</div>
+        </article>
+        <article class="tile">
+          <div><span class="who">Nebius Serverless Endpoints</span><h3 style="margin-top:12px">Live with a token.</h3><p>Paste one config block into any MCP client.</p></div>
+          <div class="v-url"><i></i>/mcp</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="close-sec">
+    <div class="wrap">
+      <span class="ingot mid" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+      <h2>Forge your first server.</h2>
+      <p>Bring an API name. Leave with a live, tested MCP server.</p>
+      <a class="pill-btn" href="#signin">Get started</a>
+    </div>
+  </section>
+  <div class="wrap"><footer class="foot"><span>MCP Forge is open source under the MIT license. Built for the Nebius and NVIDIA Global AI Hackathon, 2026.</span><a href="https://nebiusglobalaihackathon.devpost.com/" target="_blank" rel="noopener">Hackathon page</a></footer></div>
+</main>

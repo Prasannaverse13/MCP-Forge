@@ -1,0 +1,184 @@
+<!-- ================= SIGN IN AND SIGN UP ================= -->
+<main data-view="signin" hidden>
+  <div class="auth">
+    <form class="auth-box" id="auth-form" novalidate>
+      <span class="ingot mid" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+      <h1 id="auth-title">Sign in to MCP Forge</h1>
+      <p id="auth-sub">Welcome back. Your servers are where you left them.</p>
+      <div class="seg auth-seg" id="auth-seg" role="tablist" aria-label="Account"><span class="thumb"></span><button type="button" role="tab" data-p="in">Sign in</button><button type="button" role="tab" data-p="up">Create account</button></div>
+      <div class="fgroup" id="fgroup">
+        <div class="ff" id="ff-name" hidden><input id="a-name" autocomplete="name" placeholder=" " maxlength="60"><label for="a-name">Name</label></div>
+        <div class="ff"><input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder=" " maxlength="200"><label for="a-email">Email</label></div>
+        <div class="ff"><input id="a-pw" type="password" autocomplete="current-password" placeholder=" " maxlength="200"><label for="a-pw">Password</label><button type="button" class="eye" id="a-eye" aria-pressed="false">Show</button></div>
+      </div>
+      <p class="auth-hint" id="a-hint" hidden>Use at least 8 characters.</p>
+      <p class="auth-err" id="a-err" role="alert" hidden></p>
+      <button class="pill-btn auth-go" id="a-go" type="submit"><span>Sign in</span></button>
+      <p class="auth-note" id="a-note"></p>
+      <a class="auth-back text-link" href="#home">Back to MCP Forge</a>
+    </form>
+  </div>
+</main>
+
+<!-- ================= ONBOARDING ================= -->
+<main data-view="onboarding" hidden>
+  <div class="setup">
+    <div class="setup-top">
+      <span class="brand"><span class="ingot tiny" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>MCP Forge</span>
+      <div class="dots" aria-hidden="true"><i class="on"></i><i></i></div>
+    </div>
+    <div class="setup-body">
+      <section class="st" id="st1" aria-labelledby="st1h">
+        <span class="sym" style="background:linear-gradient(160deg,#ff9f0a,#ff375f)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>
+        <h1 id="st1h">Welcome to MCP Forge</h1>
+        <p>Two quick questions, then you can forge your first server.</p>
+        <div class="group"><div class="row"><label for="ob-name">Name</label><input id="ob-name" autocomplete="given-name" placeholder="Your name" maxlength="60"></div></div>
+        <p class="ghead">What will you build servers for?</p>
+        <div class="group" role="radiogroup" aria-label="What will you build servers for?" id="ob-use">
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="dev"><span>Developer tools</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="data"><span>Data and analytics</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="web3"><span>Web3 and DeFi</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="internal"><span>Internal company APIs</span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+        </div>
+      </section>
+
+      <section class="st out-r" id="st2" aria-labelledby="st2h" hidden>
+        <span class="sym" style="background:linear-gradient(160deg,#30d158,#0a9e5b)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>
+        <h1 id="st2h">Choose your defaults</h1>
+        <p>You can change these for each server.</p>
+        <div class="group">
+          <div class="row"><label for="ob-model">Writer model</label><select id="ob-model"><option value="">Automatic</option><option value="super">Nemotron 3 Super</option><option value="ultra">Nemotron 3 Ultra</option><option value="nano">Nemotron 3 Nano</option></select></div>
+          <div class="row"><span class="lbl" id="ob-rounds-l">Fix rounds</span><div class="seg" id="ob-rounds" role="radiogroup" aria-labelledby="ob-rounds-l"><span class="thumb"></span><button type="button" role="radio" data-v="1">1</button><button type="button" role="radio" data-v="3">3</button><button type="button" role="radio" data-v="5">5</button></div></div>
+        </div>
+        <p class="ghead">Where tests run</p>
+        <div class="group" role="radiogroup" aria-label="Where tests run" id="ob-runner">
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="nebius"><span>Nebius Serverless Jobs<small id="ob-nebius-note">Isolated containers on Nebius.</small></span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row" role="radio" aria-checked="false" data-v="local"><span>The server's own machine<small>Good for trying things out. Code is not sandboxed.</small></span><svg class="tick" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg></button>
+        </div>
+      </section>
+    </div>
+    <div class="setup-foot">
+      <button class="pill-btn" type="button" id="ob-next">Continue</button>
+      <button class="back" type="button" id="ob-back" hidden>Back</button>
+    </div>
+  </div>
+</main>
+
+<!-- ================= DASHBOARD ================= -->
+<div data-view="app" hidden>
+  <div class="appwin">
+    <div class="scrim" id="scrim" hidden></div>
+    <aside class="side" id="side" aria-label="Servers">
+      <a class="brand" href="#home"><span class="ingot tiny" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>MCP Forge</a>
+      <button class="newbtn" type="button" id="newbtn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 2v10M2 7h10"/></svg>New server</button>
+      <label class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg><input id="srv-q" type="search" placeholder="Search servers" aria-label="Search servers"></label>
+      <div class="srvwrap">
+        <h4>Servers</h4>
+        <div class="srv" id="recent" role="list"></div>
+      </div>
+      <div class="me">
+        <span class="avatar" id="avatar" aria-hidden="true">?</span>
+        <div class="who"><b id="uname">You</b><small id="uemail"></small></div>
+        <div class="acts"><a href="#onboarding">Setup</a><button type="button" id="signout">Sign out</button></div>
+      </div>
+    </aside>
+
+    <section class="main" aria-label="Forge">
+      <div class="tb">
+        <button class="menubtn" type="button" id="menubtn" aria-label="Show servers" aria-expanded="false"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 5h12M3 9h12M3 13h12"/></svg></button>
+        <div class="tt"><h1 id="hello">Hello</h1><p class="crumb" id="crumb"></p></div>
+        <div class="r"><div class="result" id="result" aria-live="polite"></div><span class="badge" id="modepill"></span></div>
+      </div>
+
+      <div class="banner" id="banner" role="status" hidden></div>
+
+      <form class="composer" id="brief" autocomplete="off">
+        <div class="big">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9.5" cy="9.5" r="6.5"/><path d="M14.5 14.5L20 20"/></svg>
+          <input id="f-api" aria-label="API name" placeholder="Which API should we forge?" maxlength="80">
+        </div>
+        <div class="more">
+          <div class="sub"><label for="f-url">Docs URL, optional</label><input id="f-url" placeholder="https://" maxlength="400"></div>
+          <div class="sub"><label for="f-tools">Tools you want</label><input id="f-tools" placeholder="Describe the tools in a sentence" maxlength="600"></div>
+        </div>
+        <div class="ctl">
+          <span class="chipsel"><select id="f-model" aria-label="Writer model"><option value="">Automatic model</option><option value="super">Nemotron 3 Super</option><option value="ultra">Nemotron 3 Ultra</option><option value="nano">Nemotron 3 Nano</option></select></span>
+          <span class="lab" id="f-rounds-l">Fix rounds</span>
+          <div class="seg" id="f-rounds" role="radiogroup" aria-labelledby="f-rounds-l"><span class="thumb"></span><button type="button" role="radio" data-v="1">1</button><button type="button" role="radio" data-v="3">3</button><button type="button" role="radio" data-v="5">5</button></div>
+          <span class="spacer"></span>
+          <button class="ghost stopbtn" type="button" id="stop" hidden>Stop</button>
+          <button class="pill-btn" id="go" type="submit">Forge server</button>
+        </div>
+      </form>
+
+      <!-- home: stats and templates -->
+      <div class="home-pane" id="home-pane">
+        <div class="stats" id="stats">
+          <div class="stat"><b data-k="count">0</b><span>Servers forged</span></div>
+          <div class="stat"><b data-k="live">0</b><span>Live now</span></div>
+          <div class="stat"><b data-k="tests">0</b><span>Tests passed</span></div>
+          <div class="stat"><b data-k="avg">0</b><span>Average build, seconds</span></div>
+        </div>
+        <div class="sect-h"><h2>Start from a popular API</h2><p>Pick one to fill in the form. Change anything before you forge.</p></div>
+        <div class="tpl" id="tpl"></div>
+      </div>
+
+      <!-- a run: forge head, timeline and output -->
+      <div class="run-pane" id="run-pane" hidden>
+        <section class="forge-head panel" aria-label="Progress">
+          <div class="fh-top">
+            <span class="ingot mid" id="fIngot" aria-hidden="true"><span class="glyph"><svg viewBox="0 0 60 60"><path d="M18 22l-8 8 8 8M42 22l8 8-8 8M34 16l-8 28"/></svg></span></span>
+            <div class="fh-t"><h2 id="fh-name">Server</h2><p id="fh-status">Starting</p></div>
+            <div class="fh-clock" id="fh-clock" aria-label="Elapsed time">00:00</div>
+          </div>
+          <div class="stepper" id="stepper">
+            <div class="track" aria-hidden="true"><b id="trackfill"></b></div>
+            <ol>
+              <li data-n="0"><span class="node"></span><span class="lb">Docs</span></li>
+              <li data-n="1"><span class="node"></span><span class="lb">Plan</span></li>
+              <li data-n="2"><span class="node"></span><span class="lb">Write</span></li>
+              <li data-n="3"><span class="node"></span><span class="lb">Test and fix</span></li>
+              <li data-n="4"><span class="node"></span><span class="lb">Ship</span></li>
+            </ol>
+          </div>
+        </section>
+
+        <div class="cols">
+          <section class="panel" aria-labelledby="h-run">
+            <div class="panel-h"><h2 id="h-run">Steps</h2><span class="badge" id="roundpill">Ready</span></div>
+            <ol class="tl" id="pipe"></ol>
+          </section>
+          <section class="panel" aria-labelledby="h-out">
+            <div class="outh">
+              <h2 id="h-out">Output</h2>
+              <div class="seg" id="outseg" role="tablist" aria-label="Output"><span class="thumb"></span>
+                <button type="button" role="tab" data-p="p-code" id="t-code">Code</button><button type="button" role="tab" data-p="p-tests" id="t-tests">Tests</button><button type="button" role="tab" data-p="p-try" id="t-try">Try it</button><button type="button" role="tab" data-p="p-logs" id="t-logs">Logs</button><button type="button" role="tab" data-p="p-conn" id="t-conn">Connect</button>
+              </div>
+            </div>
+            <div class="tp" id="p-code" role="tabpanel" aria-labelledby="t-code">
+              <div class="codewrap">
+                <div class="codehead"><div class="ftabs" id="ftabs"></div><span class="codemeta" id="codemeta"></span></div>
+                <div class="codebox" id="codebox"><pre id="code"></pre></div>
+              </div>
+              <div class="pfoot"><button class="ghost" type="button" id="dlzip">Download zip</button><button class="ghost" type="button" id="copycode">Copy code</button></div>
+            </div>
+            <div class="tp" id="p-tests" role="tabpanel" aria-labelledby="t-tests" hidden><div class="tsum" id="tsum"></div><ul class="tests" id="tests"></ul></div>
+            <div class="tp" id="p-try" role="tabpanel" aria-labelledby="t-try" hidden>
+              <div class="try" id="try"></div>
+            </div>
+            <div class="tp" id="p-logs" role="tabpanel" aria-labelledby="t-logs" hidden><pre class="logs" id="logs"></pre></div>
+            <div class="tp" id="p-conn" role="tabpanel" aria-labelledby="t-conn" hidden>
+              <div class="conn">
+                <div><p class="lbl">Endpoint</p><div class="urlbox"><span id="url"></span><button class="ghost" type="button" id="copyurl">Copy</button></div></div>
+                <div><p class="lbl">Add to any MCP client</p><pre id="cfg">{}</pre></div>
+                <div class="pfoot" style="padding:0;justify-content:space-between"><p class="note" id="connnote"></p><button class="ghost" type="button" id="copycfg">Copy config</button></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
