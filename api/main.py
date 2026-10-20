@@ -4,7 +4,9 @@ from __future__ import annotations
 import io
 import json
 import re
+import os
 import shutil
+import time
 import zipfile
 from pathlib import Path
 
@@ -131,8 +133,21 @@ class ForgeBody(BaseModel):
     runner: str = ""  # "local" or "nebius". Empty uses FORGE_RUNNER.
 
 
+MAX_USER_DAY = int(os.getenv("FORGE_MAX_RUNS_PER_USER_DAY", "0"))   # 0 means no limit
+MAX_ALL_DAY = int(os.getenv("FORGE_MAX_RUNS_PER_DAY", "0"))
+MAX_PARALLEL = int(os.getenv("FORGE_MAX_PARALLEL", "0"))
+_active = {"n": 0, "users": set()}
+
+
 @app.post("/api/forge")
 async def run_forge(body: ForgeBody, user: dict = Depends(current_user)):
+    day = time.time() - 86400
+    if MAX_USER_DAY and db.run_count(day, user["id"]) >= MAX_USER_DAY:
+        raise HTTPException(429, f"Daily limit reached: {MAX_USER_DAY} servers per account on this demo. Try again tomorrow or run it locally.")
+    if MAX_ALL_DAY and db.run_count(day) >= MAX_ALL_DAY:
+        raise HTTPException(429, "This public demo reached its daily limit. Please run it locally or watch the demo video.")
+    if user["id"] in _active["users"] or (MAX_PARALLEL and _active["n"] >= MAX_PARALLEL):
+        raise HTTPException(429, "The demo is busy. Wait for the current run to finish and try again.")
     brief = Brief(api_name=body.api_name, docs_url=body.docs_url, tools=body.tools,
                   writer_hint=body.writer_hint.lower(), max_rounds=body.max_rounds, runner=body.runner)
     rid = db.run_start(user["id"], body.api_name, body.model_dump())
@@ -141,6 +156,7 @@ async def run_forge(body: ForgeBody, user: dict = Depends(current_user)):
         events: list[dict] = []
         files: dict = {}
         status, done = "stopped", None
+        _active["n"] += 1; _active["users"].add(user["id"])
         try:
             yield f"data: {json.dumps({'type': 'run', 'id': rid})}\n\n"
             async for ev in forge(brief):
@@ -153,6 +169,7 @@ async def run_forge(body: ForgeBody, user: dict = Depends(current_user)):
                     status = "failed"
                 yield f"data: {json.dumps(ev)}\n\n"
         finally:  # also runs when the user presses Stop and the stream closes
+            _active["n"] -= 1; _active["users"].discard(user["id"])
             db.run_finish(rid, events, files, status, done)
 
     return StreamingResponse(stream(), media_type="text/event-stream",

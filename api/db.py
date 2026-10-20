@@ -147,3 +147,11 @@ def run_get(user_id: str, rid: str) -> dict | None:
 
 def run_delete(user_id: str, rid: str) -> bool:
     return bool(_q("DELETE FROM runs WHERE id=? AND user_id=? RETURNING id", (rid, user_id)))
+
+
+def run_count(since: float, user_id: str | None = None) -> int:
+    if user_id:
+        r = _q("SELECT COUNT(*) c FROM runs WHERE created>? AND user_id=?", (since, user_id), one=True)
+    else:
+        r = _q("SELECT COUNT(*) c FROM runs WHERE created>?", (since,), one=True)
+    return int(r["c"])

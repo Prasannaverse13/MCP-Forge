@@ -67,3 +67,12 @@ MIT. See `LICENSE`.
 ## Status of the Nebius runner
 
 Tests and deploy run on the local runner by default (the same machine as the API). The Nebius runner (Serverless Job for tests and Serverless Endpoint for deploy, through the `nebius` CLI) is written but has not been run end to end yet. The Nebius CLI supports Ubuntu and macOS only, so it was not tested from Windows. Models and docs search already run on Nebius Token Factory and Tavily.
+
+## Public demo on Render
+
+`render.yaml` deploys the API and the web app as one service. Steps: push to GitHub, then in Render choose New, Blueprint, pick this repo, and add `NEBIUS_API_KEY` and `TAVILY_API_KEY` in the dashboard. The blueprint turns on limits (3 servers per account per day, 40 per day in total, 2 at a time) so a public link cannot drain your credits.
+
+Notes for the hosted demo:
+- The test runner is the local runner. It runs the generated code on the Render machine. Keep the limits on, and use a Nebius or Tavily key that has a spending cap.
+- The free plan sleeps after idle time (first load can take about a minute) and its disk is cleared on each deploy, so accounts and saved servers reset.
+- Deployed endpoints listen inside the Render machine. The Try it tab works. To use a generated server from your own MCP client, download the zip and run it locally.

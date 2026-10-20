@@ -1,0 +1,25 @@
+# Render blueprint: one web service that serves the API and the web app.
+services:
+  - type: web
+    name: mcp-forge
+    runtime: python
+    plan: free
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: cd api && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: NEBIUS_API_KEY
+        sync: false          # paste in the Render dashboard, never in git
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: FORGE_RUNNER
+        value: local
+      # Public demo limits, so strangers cannot drain your credits
+      - key: FORGE_MAX_RUNS_PER_USER_DAY
+        value: "3"
+      - key: FORGE_MAX_RUNS_PER_DAY
+        value: "40"
+      - key: FORGE_MAX_PARALLEL
+        value: "2"
