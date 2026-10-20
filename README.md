@@ -9,8 +9,7 @@ Built for the **Nebius x NVIDIA Global AI Hackathon**.
 | | |
 |---|---|
 | Live demo | https://mcp-forge-a2r0.onrender.com/ |
-| Product preview | https://claude.ai/artifact/3hyFJzx5y9RdSu1qWY9TN2 |
-| Code | https://github.com/Prasannaverse13/MCP-Forge |
+
 
 > The live demo is a hosted, limited version. Sign up with any email. Each account gets 3 servers per day. The free host sleeps when idle, so the first load can take about a minute. Accounts and runs reset when the host redeploys.
 
